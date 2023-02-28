@@ -32,6 +32,8 @@ import java.util.Collections;
 import java.util.List;
 
 /**
+ * 默认使用的执行器
+ *
  * @author Clinton Begin
  */
 public class SimpleExecutor extends BaseExecutor {
@@ -81,7 +83,7 @@ public class SimpleExecutor extends BaseExecutor {
 
   private Statement prepareStatement(StatementHandler handler, Log statementLog) throws SQLException {
     Statement stmt;
-    Connection connection = getConnection(statementLog);
+    Connection connection = getConnection(statementLog);    // 获取连接对象
     stmt = handler.prepare(connection, transaction.getTimeout());
     handler.parameterize(stmt);
     return stmt;

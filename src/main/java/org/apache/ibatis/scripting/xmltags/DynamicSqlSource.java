@@ -28,7 +28,7 @@ import org.apache.ibatis.session.Configuration;
 public class DynamicSqlSource implements SqlSource {
 
   private final Configuration configuration;
-  private final SqlNode rootSqlNode;
+  private final SqlNode rootSqlNode;    // 动态sql的标签节点
 
   public DynamicSqlSource(Configuration configuration, SqlNode rootSqlNode) {
     this.configuration = configuration;
@@ -38,7 +38,7 @@ public class DynamicSqlSource implements SqlSource {
   @Override
   public BoundSql getBoundSql(Object parameterObject) {
     DynamicContext context = new DynamicContext(configuration, parameterObject);
-    rootSqlNode.apply(context);
+    rootSqlNode.apply(context);     // 将sql片段拼接（期间判断动态sql的条件是否成立）
     SqlSourceBuilder sqlSourceParser = new SqlSourceBuilder(configuration);
     Class<?> parameterType = parameterObject == null ? Object.class : parameterObject.getClass();
     SqlSource sqlSource = sqlSourceParser.parse(context.getSql(), parameterType, context.getBindings());

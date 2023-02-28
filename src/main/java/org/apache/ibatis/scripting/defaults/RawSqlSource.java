@@ -36,19 +36,40 @@ public class RawSqlSource implements SqlSource {
 
   private final SqlSource sqlSource;
 
+  /**
+   * 根据原始sql字符串，解析 #{} 的入参等信息，创建RawSqlSource对象
+   *
+   * @param configuration
+   * @param rootSqlNode
+   * @param parameterType
+   */
   public RawSqlSource(Configuration configuration, SqlNode rootSqlNode, Class<?> parameterType) {
     this(configuration, getSql(configuration, rootSqlNode), parameterType);
   }
 
+  /**
+   * 根据原始sql字符串，解析 #{} 的入参等信息，创建RawSqlSource对象
+   *
+   * @param configuration
+   * @param sql
+   * @param parameterType
+   */
   public RawSqlSource(Configuration configuration, String sql, Class<?> parameterType) {
     SqlSourceBuilder sqlSourceParser = new SqlSourceBuilder(configuration);
     Class<?> clazz = parameterType == null ? Object.class : parameterType;
-    sqlSource = sqlSourceParser.parse(sql, clazz, new HashMap<String, Object>());
+    sqlSource = sqlSourceParser.parse(sql, clazz, new HashMap<String, Object>());   // 解析原始sql字符串，解析#{}参数，创建sqlSource对象
   }
 
+  /**
+   * 将初始的sql语句片段的集合拼接，返回初始的sql语句字符串
+   *
+   * @param configuration
+   * @param rootSqlNode
+   * @return
+   */
   private static String getSql(Configuration configuration, SqlNode rootSqlNode) {
     DynamicContext context = new DynamicContext(configuration, null);
-    rootSqlNode.apply(context);
+    rootSqlNode.apply(context);   // 拼接sql片段
     return context.getSql();
   }
 

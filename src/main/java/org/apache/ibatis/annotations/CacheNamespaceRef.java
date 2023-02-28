@@ -26,6 +26,9 @@ import java.lang.annotation.Target;
  * <p>
  * If you use this annotation, should be specified either {@link #value()} or {@link #name()} attribute.
  * </p>
+ *
+ * 缓存引用标签的替代注解，自定义缓存（等于xml中的<cache-ref/>）
+ *
  * @author Clinton Begin
  * @author Kazuki Shimizu
  */

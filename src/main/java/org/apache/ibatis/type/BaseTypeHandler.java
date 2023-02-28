@@ -24,6 +24,8 @@ import org.apache.ibatis.executor.result.ResultMapException;
 import org.apache.ibatis.session.Configuration;
 
 /**
+ * 自定义的类型处理器，都需要继承这个类
+ *
  * @author Clinton Begin
  * @author Simone Tripodi
  */
@@ -50,7 +52,7 @@ public abstract class BaseTypeHandler<T> extends TypeReference<T> implements Typ
       }
     } else {
       try {
-        setNonNullParameter(ps, i, parameter, jdbcType);
+        setNonNullParameter(ps, i, parameter, jdbcType);    // 给sql语句set参数
       } catch (Exception e) {
         throw new TypeException("Error setting non null for parameter #" + i + " with JdbcType " + jdbcType + " . " +
                 "Try setting a different JdbcType for this parameter or a different configuration property. " +

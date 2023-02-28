@@ -25,18 +25,24 @@ import org.apache.ibatis.session.Configuration;
 
 /**
  * An actual SQL String got from an {@link SqlSource} after having processed any dynamic content.
- * The SQL may have SQL placeholders "?" and an list (ordered) of an parameter mappings 
- * with the additional information for each parameter (at least the property name of the input object to read 
- * the value from). 
+ * The SQL may have SQL placeholders "?" and an list (ordered) of an parameter mappings
+ * with the additional information for each parameter (at least the property name of the input object to read
+ * the value from).
  * </br>
  * Can also have additional parameters that are created by the dynamic language (for loops, bind...).
  *
  * @author Clinton Begin
+ *
+ * 处理完任何动态内容后，从 {@link SqlSource} 获得了一个实际的SQL字符串。
+ * SQL可能具有SQL占位符 “？” 和参数映射的列表 (有序)，
+ * 其中包含每个参数的附加信息(至少要从中读取值的输入对象的属性名称)。
+ *
+ * 还可以具有由动态语言创建的其他参数 (对于循环，绑定...)。
  */
 public class BoundSql {
 
-  private final String sql;
-  private final List<ParameterMapping> parameterMappings;
+  private final String sql;   // sql字符串
+  private final List<ParameterMapping> parameterMappings;   // 参数映射
   private final Object parameterObject;
   private final Map<String, Object> additionalParameters;
   private final MetaObject metaParameters;

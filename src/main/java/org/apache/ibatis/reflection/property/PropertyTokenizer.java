@@ -21,21 +21,27 @@ import java.util.Iterator;
  * @author Clinton Begin
  */
 public class PropertyTokenizer implements Iterator<PropertyTokenizer> {
-  private String name;
-  private final String indexedName;
-  private String index;
-  private final String children;
+  private String name;    // 父属性字段的名字，
+  private final String indexedName;   // 当前标记下标的属性字段名字
+  private String index;   // 属性下标（如果当前的属性是集合）
+  private final String children;    // 子属性字段
 
+  /**
+   * 根据入参的属性值，取出入参内部的变量的值
+   * 例如：入参 #{student.address}，表示获取学生地址的值
+   *
+   * @param fullname
+   */
   public PropertyTokenizer(String fullname) {
     int delim = fullname.indexOf('.');
-    if (delim > -1) {
+    if (delim > -1) {     // 如果入参包含有点，说明需要获取入参内部的某个属性
       name = fullname.substring(0, delim);
       children = fullname.substring(delim + 1);
-    } else {
+    } else {    // 不包含点，说明已经是最后一级的字段了，没有子属性字段
       name = fullname;
       children = null;
     }
-    indexedName = name;
+    indexedName = name;   // 初始下标为第一个父属性名字
     delim = name.indexOf('[');
     if (delim > -1) {
       index = name.substring(delim + 1, name.length() - 1);

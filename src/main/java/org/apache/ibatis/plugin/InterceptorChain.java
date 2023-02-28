@@ -20,12 +20,21 @@ import java.util.Collections;
 import java.util.List;
 
 /**
+ * 拦截器链
+ *
  * @author Clinton Begin
  */
 public class InterceptorChain {
 
+  // MyBatis中所有的拦截器
   private final List<Interceptor> interceptors = new ArrayList<Interceptor>();
 
+    /**
+     * 遍历所有拦截器，根据目标对象，生成反射对象，
+     *
+     * @param target
+     * @return
+     */
   public Object pluginAll(Object target) {
     for (Interceptor interceptor : interceptors) {
       target = interceptor.plugin(target);
@@ -33,10 +42,20 @@ public class InterceptorChain {
     return target;
   }
 
+  /**
+   * 给拦截器List添加元素
+   *
+   * @param interceptor
+   */
   public void addInterceptor(Interceptor interceptor) {
     interceptors.add(interceptor);
   }
-  
+
+  /**
+   * 获取整个拦截器的List
+   *
+   * @return
+   */
   public List<Interceptor> getInterceptors() {
     return Collections.unmodifiableList(interceptors);
   }

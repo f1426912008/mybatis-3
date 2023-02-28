@@ -143,6 +143,20 @@
   </properties>
 
   <dependencies>
+
+    <!--mysql驱动，连接数据库-->
+    <dependency>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+      <version>8.0.29</version>
+    </dependency>
+    <!--mybatis分页插件-->
+    <dependency>
+    <groupId>com.github.pagehelper</groupId>
+      <artifactId>pagehelper</artifactId>
+      <version>5.1.6</version>
+    </dependency>
+
     <dependency>
       <groupId>ognl</groupId>
       <artifactId>ognl</artifactId>

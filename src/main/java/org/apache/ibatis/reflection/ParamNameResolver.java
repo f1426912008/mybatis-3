@@ -29,6 +29,11 @@ import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 
+/**
+ * 入参名称解析
+ *
+ * 分析入参是否使用@Param注解，统一格式化入参的名称
+ */
 public class ParamNameResolver {
 
   private static final String GENERIC_NAME_PREFIX = "param";
@@ -46,22 +51,29 @@ public class ParamNameResolver {
    * <li>aMethod(int a, RowBounds rb, int b) -&gt; {{0, "0"}, {2, "1"}}</li>
    * </ul>
    */
-  private final SortedMap<Integer, String> names;
+  private final SortedMap<Integer, String> names;   // 方法的入参的map。key索引，value参数名称
 
   private boolean hasParamAnnotation;
 
+  /**
+   * 构造方法初始化
+   *
+   * @param config
+   * @param method
+   */
   public ParamNameResolver(Configuration config, Method method) {
-    final Class<?>[] paramTypes = method.getParameterTypes();
-    final Annotation[][] paramAnnotations = method.getParameterAnnotations();
+    final Class<?>[] paramTypes = method.getParameterTypes();   // 入参类型
+    final Annotation[][] paramAnnotations = method.getParameterAnnotations();   // 入参是否包含注解
     final SortedMap<Integer, String> map = new TreeMap<Integer, String>();
     int paramCount = paramAnnotations.length;
     // get names from @Param annotations
     for (int paramIndex = 0; paramIndex < paramCount; paramIndex++) {
-      if (isSpecialParameter(paramTypes[paramIndex])) {
+      if (isSpecialParameter(paramTypes[paramIndex])) {   // 如果是特殊参数，跳出循环（RowBounds或ResultHandler之一）
         // skip special parameters
         continue;
       }
       String name = null;
+      // 如果有注解，先取注解的值
       for (Annotation annotation : paramAnnotations[paramIndex]) {
         if (annotation instanceof Param) {
           hasParamAnnotation = true;
@@ -72,12 +84,12 @@ public class ParamNameResolver {
       if (name == null) {
         // @Param was not specified.
         if (config.isUseActualParamName()) {
-          name = getActualParamName(method, paramIndex);
+          name = getActualParamName(method, paramIndex);    // 获取实际的参数名称
         }
         if (name == null) {
           // use the parameter index as the name ("0", "1", ...)
           // gcode issue #71
-          name = String.valueOf(map.size());
+          name = String.valueOf(map.size());    // 使用参数索引作为名称（“0”、“1”、…）
         }
       }
       map.put(paramIndex, name);
@@ -85,6 +97,13 @@ public class ParamNameResolver {
     names = Collections.unmodifiableSortedMap(map);
   }
 
+  /**
+   * 获取实际上的参数名称
+   *
+   * @param method
+   * @param paramIndex
+   * @return
+   */
   private String getActualParamName(Method method, int paramIndex) {
     if (Jdk.parameterExists) {
       return ParamNameUtil.getParamNames(method).get(paramIndex);
@@ -92,6 +111,12 @@ public class ParamNameResolver {
     return null;
   }
 
+  /**
+   * 入参的参数类型是否是特殊参数（RowBounds或 ResultHandler之一）
+   *
+   * @param clazz
+   * @return
+   */
   private static boolean isSpecialParameter(Class<?> clazz) {
     return RowBounds.class.isAssignableFrom(clazz) || ResultHandler.class.isAssignableFrom(clazz);
   }
@@ -111,6 +136,13 @@ public class ParamNameResolver {
    * ...).
    * </p>
    */
+  /**
+   * 返回一个没有名称的非特殊参数，使用命名规则命名多个参数
+   * 除了默认名称之外，此方法还添加通用名称（param1、param2、…）
+   *
+   * @param args
+   * @return
+   */
   public Object getNamedParams(Object[] args) {
     final int paramCount = names.size();
     if (args == null || paramCount == 0) {
@@ -122,9 +154,9 @@ public class ParamNameResolver {
       int i = 0;
       for (Map.Entry<Integer, String> entry : names.entrySet()) {
         param.put(entry.getValue(), args[entry.getKey()]);
-        // add generic param names (param1, param2, ...)
-        final String genericParamName = GENERIC_NAME_PREFIX + String.valueOf(i + 1);
-        // ensure not to overwrite parameter named with @Param
+        // add generic param names (param1, param2, ...)      （添加通用参数名称（param1，param2，…））
+        final String genericParamName = GENERIC_NAME_PREFIX + String.valueOf(i + 1);    // 'param' + 下标，即 param1 ...
+        // ensure not to overwrite parameter named with @Param      （确保不覆盖以@Param命名的参数）
         if (!names.containsValue(genericParamName)) {
           param.put(genericParamName, args[entry.getKey()]);
         }

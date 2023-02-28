@@ -20,6 +20,9 @@ import org.apache.ibatis.io.Resources;
 
 /**
  * To check the existence of version dependent classes.
+ * 检查依赖于版本的类是否存在，例如：JDK 1.8 新的日期时间类
+ *
+ * 首先会读取JDK中指定的包，如果没读取到，则表示当前的JDK版本中没有对应的包
  */
 public class Jdk {
 

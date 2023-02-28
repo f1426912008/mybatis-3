@@ -22,16 +22,17 @@ import org.apache.ibatis.mapping.ResultMap;
 import org.apache.ibatis.mapping.ResultMapping;
 
 /**
+ * 解析结果集的类
  * @author Eduardo Macarron
  */
 public class ResultMapResolver {
   private final MapperBuilderAssistant assistant;
-  private final String id;
-  private final Class<?> type;
-  private final String extend;
+  private final String id;    // ResultMap标签的名字id，不可重复
+  private final Class<?> type;    // ResultMap返回值类型
+  private final String extend;    // 所继承的父类的全限定名称
   private final Discriminator discriminator;
-  private final List<ResultMapping> resultMappings;
-  private final Boolean autoMapping;
+  private final List<ResultMapping> resultMappings;   // 字段映射关系结合
+  private final Boolean autoMapping;    // 是否需要自动映射
 
   public ResultMapResolver(MapperBuilderAssistant assistant, String id, Class<?> type, String extend, Discriminator discriminator, List<ResultMapping> resultMappings, Boolean autoMapping) {
     this.assistant = assistant;
@@ -43,6 +44,10 @@ public class ResultMapResolver {
     this.autoMapping = autoMapping;
   }
 
+  /**
+   * 解析ResultMap结果集的映射关系，返回ResultMap
+   * @return
+   */
   public ResultMap resolve() {
     return assistant.addResultMap(this.id, this.type, this.extend, this.discriminator, this.resultMappings, this.autoMapping);
   }

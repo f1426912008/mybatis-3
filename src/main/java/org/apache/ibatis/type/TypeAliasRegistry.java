@@ -37,8 +37,11 @@ import org.apache.ibatis.io.Resources;
  */
 public class TypeAliasRegistry {
 
-  private final Map<String, Class<?>> TYPE_ALIASES = new HashMap<String, Class<?>>();
+  private final Map<String, Class<?>> TYPE_ALIASES = new HashMap<String, Class<?>>();   // 类型别名Map
 
+  /**
+   * 构造方法初始化 TYPE_ALIASES
+   */
   public TypeAliasRegistry() {
     registerAlias("string", String.class);
 
@@ -100,6 +103,15 @@ public class TypeAliasRegistry {
     registerAlias("ResultSet", ResultSet.class);
   }
 
+  /**
+   * 根据名字，获取反射 Class
+   *   如果入参是别名，则在类型别名的Map中获取Class；
+   *   否则入参就是类全限定名，可通过反射获取Class
+   *
+   * @param string
+   * @param <T>
+   * @return
+   */
   @SuppressWarnings("unchecked")
   // throws class cast exception as well if types cannot be assigned
   public <T> Class<T> resolveAlias(String string) {
@@ -125,28 +137,45 @@ public class TypeAliasRegistry {
     registerAliases(packageName, Object.class);
   }
 
+  /**
+   * 根据包名，注册类型别名
+   *
+   * @param packageName
+   * @param superType
+   */
   public void registerAliases(String packageName, Class<?> superType){
     ResolverUtil<Class<?>> resolverUtil = new ResolverUtil<Class<?>>();
-    resolverUtil.find(new ResolverUtil.IsA(superType), packageName);
-    Set<Class<? extends Class<?>>> typeSet = resolverUtil.getClasses();
+    resolverUtil.find(new ResolverUtil.IsA(superType), packageName);    // 将包内的.class文件，放在resolverUtil对象的matches集合中
+    Set<Class<? extends Class<?>>> typeSet = resolverUtil.getClasses();   // 获取这个matches集合
     for(Class<?> type : typeSet){
       // Ignore inner classes and interfaces (including package-info.java)
       // Skip also inner classes. See issue #6
       if (!type.isAnonymousClass() && !type.isInterface() && !type.isMemberClass()) {
-        registerAlias(type);
+        registerAlias(type);    // 注册该类到TYPE_ALIASES集合中
       }
     }
   }
 
+  /**
+   * 注册该类到TYPE_ALIASES集合中
+   *
+   * @param type
+   */
   public void registerAlias(Class<?> type) {
-    String alias = type.getSimpleName();
+    String alias = type.getSimpleName();    // 返回源代码中给定的基础类的简单名称。如果基础类是匿名的，则返回空字符串
     Alias aliasAnnotation = type.getAnnotation(Alias.class);
-    if (aliasAnnotation != null) {
+    if (aliasAnnotation != null) {    // 如果使用了别名的注解，则使用该名称注册
       alias = aliasAnnotation.value();
     } 
-    registerAlias(alias, type);
+    registerAlias(alias, type);   // 注册此别名，添加到TYPE_ALIASES集合中
   }
 
+  /**
+   * 类型别名 Map 添加元素
+   *
+   * @param alias
+   * @param value
+   */
   public void registerAlias(String alias, Class<?> value) {
     if (alias == null) {
       throw new TypeException("The parameter alias cannot be null");

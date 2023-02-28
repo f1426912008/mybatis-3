@@ -25,6 +25,7 @@ import org.apache.ibatis.cache.decorators.LruCache;
 import org.apache.ibatis.cache.impl.PerpetualCache;
 
 /**
+ * 缓存标签的替代注解（等于xml中的<cache/>）
  * @author Clinton Begin
  * @author Kazuki Shimizu
  */

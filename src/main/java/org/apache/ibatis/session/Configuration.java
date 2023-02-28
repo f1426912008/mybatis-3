@@ -103,11 +103,11 @@ public class Configuration {
   protected boolean mapUnderscoreToCamelCase;
   protected boolean aggressiveLazyLoading;
   protected boolean multipleResultSetsEnabled = true;
-  protected boolean useGeneratedKeys;
-  protected boolean useColumnLabel = true;
-  protected boolean cacheEnabled = true;
+  protected boolean useGeneratedKeys;   // 主键递增？
+  protected boolean useColumnLabel = true;    // 是否使用列标签
+  protected boolean cacheEnabled = true;    // 缓存开启？
   protected boolean callSettersOnNulls;
-  protected boolean useActualParamName = true;
+  protected boolean useActualParamName = true;    // 使用了实际上的参数名称
   protected boolean returnInstanceForEmptyRow;
 
   protected String logPrefix;
@@ -118,7 +118,7 @@ public class Configuration {
   protected Set<String> lazyLoadTriggerMethods = new HashSet<String>(Arrays.asList(new String[] { "equals", "clone", "hashCode", "toString" }));
   protected Integer defaultStatementTimeout;
   protected Integer defaultFetchSize;
-  protected ExecutorType defaultExecutorType = ExecutorType.SIMPLE;
+  protected ExecutorType defaultExecutorType = ExecutorType.SIMPLE;   // 默认执行器类型
   protected AutoMappingBehavior autoMappingBehavior = AutoMappingBehavior.PARTIAL;
   protected AutoMappingUnknownColumnBehavior autoMappingUnknownColumnBehavior = AutoMappingUnknownColumnBehavior.NONE;
 
@@ -145,19 +145,21 @@ public class Configuration {
   protected final TypeAliasRegistry typeAliasRegistry = new TypeAliasRegistry();
   protected final LanguageDriverRegistry languageRegistry = new LanguageDriverRegistry();
 
+  // 存储SQL语句映射类的Map
   protected final Map<String, MappedStatement> mappedStatements = new StrictMap<MappedStatement>("Mapped Statements collection");
   protected final Map<String, Cache> caches = new StrictMap<Cache>("Caches collection");
-  protected final Map<String, ResultMap> resultMaps = new StrictMap<ResultMap>("Result Maps collection");
+  protected final Map<String, ResultMap> resultMaps = new StrictMap<ResultMap>("Result Maps collection");   // 所有的XML的resultMap集合
   protected final Map<String, ParameterMap> parameterMaps = new StrictMap<ParameterMap>("Parameter Maps collection");
+  // 需要进行主键自动生成的Map
   protected final Map<String, KeyGenerator> keyGenerators = new StrictMap<KeyGenerator>("Key Generators collection");
 
-  protected final Set<String> loadedResources = new HashSet<String>();
+  protected final Set<String> loadedResources = new HashSet<String>();    // 已经加载完毕的XML资源
   protected final Map<String, XNode> sqlFragments = new StrictMap<XNode>("XML fragments parsed from previous mappers");
 
-  protected final Collection<XMLStatementBuilder> incompleteStatements = new LinkedList<XMLStatementBuilder>();
-  protected final Collection<CacheRefResolver> incompleteCacheRefs = new LinkedList<CacheRefResolver>();
-  protected final Collection<ResultMapResolver> incompleteResultMaps = new LinkedList<ResultMapResolver>();
-  protected final Collection<MethodResolver> incompleteMethods = new LinkedList<MethodResolver>();
+  protected final Collection<XMLStatementBuilder> incompleteStatements = new LinkedList<XMLStatementBuilder>();   // 不完整的SQL语句
+  protected final Collection<CacheRefResolver> incompleteCacheRefs = new LinkedList<CacheRefResolver>();    // 不完整的缓存引用
+  protected final Collection<ResultMapResolver> incompleteResultMaps = new LinkedList<ResultMapResolver>();   // 不完整的结果映射
+  protected final Collection<MethodResolver> incompleteMethods = new LinkedList<MethodResolver>();    // 不完整的方法
 
   /*
    * A map holds cache-ref relationship. The key is the namespace that
@@ -171,6 +173,13 @@ public class Configuration {
     this.environment = environment;
   }
 
+  /**
+   * 无参构造方法：
+   * 初始化：
+   *  1.类型别名的Map，事务工厂、数据源、缓存、日志类型、动态代理类
+   *  2.配置默认lang语言驱动：XMLLanguageDriver.class
+   *  3.注册一个RawLanguageDriver，该类继承了XMLLanguageDriver
+   */
   public Configuration() {
     typeAliasRegistry.registerAlias("JDBC", JdbcTransactionFactory.class);
     typeAliasRegistry.registerAlias("MANAGED", ManagedTransactionFactory.class);
@@ -243,6 +252,11 @@ public class Configuration {
     this.callSettersOnNulls = callSettersOnNulls;
   }
 
+  /**
+   * 是否使用实际上的参数名称
+   *
+   * @return
+   */
   public boolean isUseActualParamName() {
     return useActualParamName;
   }
@@ -300,11 +314,11 @@ public class Configuration {
   }
 
   public void addLoadedResource(String resource) {
-    loadedResources.add(resource);
+    loadedResources.add(resource);    // 添加到已经加载完毕的XML资源集合中
   }
 
   public boolean isResourceLoaded(String resource) {
-    return loadedResources.contains(resource);
+    return loadedResources.contains(resource);    // 判断是否已加载过这个资源
   }
 
   public Environment getEnvironment() {
@@ -388,6 +402,11 @@ public class Configuration {
     this.useGeneratedKeys = useGeneratedKeys;
   }
 
+  /**
+   * 获取默认的执行器
+   *
+   * @return
+   */
   public ExecutorType getDefaultExecutorType() {
     return defaultExecutorType;
   }
@@ -541,12 +560,31 @@ public class Configuration {
     return MetaObject.forObject(object, objectFactory, objectWrapperFactory, reflectorFactory);
   }
 
+  /**
+   * 拦截器拦截参数处理器（ParameterHandler），生成代理对象
+   *
+   * @param mappedStatement
+   * @param parameterObject
+   * @param boundSql
+   * @return
+   */
   public ParameterHandler newParameterHandler(MappedStatement mappedStatement, Object parameterObject, BoundSql boundSql) {
     ParameterHandler parameterHandler = mappedStatement.getLang().createParameterHandler(mappedStatement, parameterObject, boundSql);
     parameterHandler = (ParameterHandler) interceptorChain.pluginAll(parameterHandler);
     return parameterHandler;
   }
 
+  /**
+   * 拦截器拦截结果集处理器（ResultSetHandler），生成代理对象
+   *
+   * @param executor
+   * @param mappedStatement
+   * @param rowBounds
+   * @param parameterHandler
+   * @param resultHandler
+   * @param boundSql
+   * @return
+   */
   public ResultSetHandler newResultSetHandler(Executor executor, MappedStatement mappedStatement, RowBounds rowBounds, ParameterHandler parameterHandler,
       ResultHandler resultHandler, BoundSql boundSql) {
     ResultSetHandler resultSetHandler = new DefaultResultSetHandler(executor, mappedStatement, parameterHandler, resultHandler, boundSql, rowBounds);
@@ -554,6 +592,17 @@ public class Configuration {
     return resultSetHandler;
   }
 
+  /**
+   * 拦截器拦截sql语句处理器（StatementHandler），生成代理对象
+   *
+   * @param executor
+   * @param mappedStatement
+   * @param parameterObject
+   * @param rowBounds
+   * @param resultHandler
+   * @param boundSql
+   * @return
+   */
   public StatementHandler newStatementHandler(Executor executor, MappedStatement mappedStatement, Object parameterObject, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) {
     StatementHandler statementHandler = new RoutingStatementHandler(executor, mappedStatement, parameterObject, rowBounds, resultHandler, boundSql);
     statementHandler = (StatementHandler) interceptorChain.pluginAll(statementHandler);
@@ -564,10 +613,18 @@ public class Configuration {
     return newExecutor(transaction, defaultExecutorType);
   }
 
+  /**
+   * 拦截器拦截SQL执行器（Executor），生成代理对象。用于执行sql语句
+   *
+   * @param transaction
+   * @param executorType
+   * @return
+   */
   public Executor newExecutor(Transaction transaction, ExecutorType executorType) {
-    executorType = executorType == null ? defaultExecutorType : executorType;
-    executorType = executorType == null ? ExecutorType.SIMPLE : executorType;
+    executorType = executorType == null ? defaultExecutorType : executorType;   // 如果传入是null，获取默认的执行器类型
+    executorType = executorType == null ? ExecutorType.SIMPLE : executorType;   // 如果默认的执行器类型也是null，使用ExecutorType.SIMPLE
     Executor executor;
+    // 判断执行器的类型，根据类型，创建指定的执行器对象
     if (ExecutorType.BATCH == executorType) {
       executor = new BatchExecutor(this, transaction);
     } else if (ExecutorType.REUSE == executorType) {
@@ -575,15 +632,17 @@ public class Configuration {
     } else {
       executor = new SimpleExecutor(this, transaction);
     }
+    // 如果缓存已启用，使用缓存的执行器对象
     if (cacheEnabled) {
       executor = new CachingExecutor(executor);
     }
+    // 根据配置的拦截器中拦截的方法，为目标对象（此处为Executor）创建反射对象，如果没有配置拦截器，则返回原对象
     executor = (Executor) interceptorChain.pluginAll(executor);
     return executor;
   }
 
   public void addKeyGenerator(String id, KeyGenerator keyGenerator) {
-    keyGenerators.put(id, keyGenerator);
+    keyGenerators.put(id, keyGenerator);    // 添加到主键自动生成的Map里
   }
 
   public Collection<String> getKeyGeneratorNames() {
@@ -622,10 +681,15 @@ public class Configuration {
     return caches.containsKey(id);
   }
 
+  /**
+   * 将处理好的ResultMap，添加到一个指定的集合resultMaps中
+   *
+   * @param rm
+   */
   public void addResultMap(ResultMap rm) {
     resultMaps.put(rm.getId(), rm);
-    checkLocallyForDiscriminatedNestedResultMaps(rm);
-    checkGloballyForDiscriminatedNestedResultMaps(rm);
+    checkLocallyForDiscriminatedNestedResultMaps(rm);   // 局部检查（当前的resultMap），校验嵌套的结果映射
+    checkGloballyForDiscriminatedNestedResultMaps(rm);    // 全局检查（整个resultMaps集合），校验嵌套的结果映射
   }
 
   public Collection<String> getResultMapNames() {
@@ -682,6 +746,11 @@ public class Configuration {
     return incompleteStatements;
   }
 
+  /**
+   * 处理失败、遇到异常的 Statement，都会add到这里
+   *
+   * @param incompleteStatement
+   */
   public void addIncompleteStatement(XMLStatementBuilder incompleteStatement) {
     incompleteStatements.add(incompleteStatement);
   }
@@ -710,15 +779,28 @@ public class Configuration {
     return incompleteMethods;
   }
 
+  /**
+   * 获取存SQL语句的对象
+   *
+   * @param id
+   * @return
+   */
   public MappedStatement getMappedStatement(String id) {
     return this.getMappedStatement(id, true);
   }
 
+  /**
+   * 根据方法名，获取指定的SQL语句对象MappedStatement
+   *
+   * @param id
+   * @param validateIncompleteStatements
+   * @return
+   */
   public MappedStatement getMappedStatement(String id, boolean validateIncompleteStatements) {
     if (validateIncompleteStatements) {
-      buildAllStatements();
+      buildAllStatements();   // 检查是否有未完成处理的节点，再次尝试处理
     }
-    return mappedStatements.get(id);
+    return mappedStatements.get(id);    // 根据方法名，从Map中获取到对应的映射SQL语句的类
   }
 
   public Map<String, XNode> getSqlFragments() {
@@ -726,7 +808,7 @@ public class Configuration {
   }
 
   public void addInterceptor(Interceptor interceptor) {
-    interceptorChain.addInterceptor(interceptor);
+    interceptorChain.addInterceptor(interceptor);   // 给拦截器List添加元素
   }
 
   public void addMappers(String packageName, Class<?> superType) {
@@ -734,7 +816,7 @@ public class Configuration {
   }
 
   public void addMappers(String packageName) {
-    mapperRegistry.addMappers(packageName);
+    mapperRegistry.addMappers(packageName);   // 根据包名，获取.class，并添加到knownMappers集合中
   }
 
   public <T> void addMapper(Class<T> type) {
@@ -745,6 +827,12 @@ public class Configuration {
     return mapperRegistry.getMapper(type, sqlSession);
   }
 
+  /**
+   * 判断这个Class是否已经注册过（是否存在于knownMappers集合中）
+   *
+   * @param type
+   * @return
+   */
   public boolean hasMapper(Class<?> type) {
     return mapperRegistry.hasMapper(type);
   }
@@ -764,7 +852,10 @@ public class Configuration {
     cacheRefMap.put(namespace, referencedNamespace);
   }
 
-  /*
+  /**
+   * 分析缓存中所有未完成的节点。
+   * 建议在添加所有映射器后调用此方法，因为它提供了快速失败的语句验证。
+   *
    * Parses all the unprocessed statement nodes in the cache. It is recommended
    * to call this method once all the mappers are added as it provides fail-fast
    * statement validation.
@@ -807,6 +898,11 @@ public class Configuration {
     return lastPeriod > 0 ? statementId.substring(0, lastPeriod) : null;
   }
 
+  /**
+   * 全局检查，区分嵌套的结果映射
+   *
+   * @param rm
+   */
   // Slow but a one time cost. A better solution is welcome.
   protected void checkGloballyForDiscriminatedNestedResultMaps(ResultMap rm) {
     if (rm.hasNestedResultMaps()) {
@@ -825,7 +921,13 @@ public class Configuration {
     }
   }
 
+  /**
+   * 局部检查，校验嵌套的结果映射
+   *
+   * @param rm
+   */
   // Slow but a one time cost. A better solution is welcome.
+  // 缓慢但一次性成本。欢迎有更好的解决方案。
   protected void checkLocallyForDiscriminatedNestedResultMaps(ResultMap rm) {
     if (!rm.hasNestedResultMaps() && rm.getDiscriminator() != null) {
       for (Map.Entry<String, String> entry : rm.getDiscriminator().getDiscriminatorMap().entrySet()) {

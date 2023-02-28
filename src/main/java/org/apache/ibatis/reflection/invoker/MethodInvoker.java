@@ -19,6 +19,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
+ * 方法调用程序
+ *
  * @author Clinton Begin
  */
 public class MethodInvoker implements Invoker {
@@ -30,9 +32,9 @@ public class MethodInvoker implements Invoker {
     this.method = method;
 
     if (method.getParameterTypes().length == 1) {
-      type = method.getParameterTypes()[0];
+      type = method.getParameterTypes()[0];   // set方法，入参为1，入参赋予type
     } else {
-      type = method.getReturnType();
+      type = method.getReturnType();    // get方法，返回值类型，返回值赋予type
     }
   }
 

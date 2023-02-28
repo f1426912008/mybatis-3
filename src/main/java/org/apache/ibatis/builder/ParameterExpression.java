@@ -40,7 +40,7 @@ public class ParameterExpression extends HashMap<String, String> {
   }
 
   private void parse(String expression) {
-    int p = skipWS(expression, 0);
+    int p = skipWS(expression, 0);    // 跳过空字符串，返回空字符串的下标
     if (expression.charAt(p) == '(') {
       expression(expression, p + 1);
     } else {
@@ -65,12 +65,19 @@ public class ParameterExpression extends HashMap<String, String> {
 
   private void property(String expression, int left) {
     if (left < expression.length()) {
-      int right = skipUntil(expression, left, ",:");
-      put("property", trimmedStr(expression, left, right));
+      int right = skipUntil(expression, left, ",:");    // 跳过",:"直到
+      put("property", trimmedStr(expression, left, right));     // 去除属性名称的前后空字符
       jdbcTypeOpt(expression, right);
     }
   }
 
+  /**
+   * 跳过空字符串，返回空字符串的下标
+   *
+   * @param expression
+   * @param p
+   * @return
+   */
   private int skipWS(String expression, int p) {
     for (int i = p; i < expression.length(); i++) {
       if (expression.charAt(i) > 0x20) {
@@ -80,6 +87,14 @@ public class ParameterExpression extends HashMap<String, String> {
     return expression.length();
   }
 
+  /**
+   * 跳过直到
+   *
+   * @param expression
+   * @param p
+   * @param endChars
+   * @return
+   */
   private int skipUntil(String expression, int p, final String endChars) {
     for (int i = p; i < expression.length(); i++) {
       char c = expression.charAt(i);
@@ -127,6 +142,14 @@ public class ParameterExpression extends HashMap<String, String> {
     }
   }
 
+  /**
+   * 去除str的前后空字符
+   *
+   * @param str
+   * @param start
+   * @param end
+   * @return
+   */
   private String trimmedStr(String str, int start, int end) {
     while (str.charAt(start) <= 0x20) {
       start++;

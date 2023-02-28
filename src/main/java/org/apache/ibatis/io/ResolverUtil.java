@@ -203,8 +203,7 @@ public class ResolverUtil<T> {
     return this;
   }
 
-  /**
-   * Scans for classes starting at the package provided and descending into subpackages.
+  /* Scans for classes starting at the package provided and descending into subpackages.
    * Each class is offered up to the Test as it is discovered, and if the Test returns
    * true the class is retained.  Accumulated classes can be fetched by calling
    * {@link #getClasses()}.
@@ -213,14 +212,17 @@ public class ResolverUtil<T> {
    * @param packageName the name of the package from which to start scanning for
    *        classes, e.g. {@code net.sourceforge.stripes}
    */
+  /**
+   * 根据包名，查找包下的所有.class文件，并添加到指定的Set集合中
+   */
   public ResolverUtil<T> find(Test test, String packageName) {
-    String path = getPackagePath(packageName);
+    String path = getPackagePath(packageName);    // 将包名处理为具体的路径（.替换为/）
 
     try {
       List<String> children = VFS.getInstance().list(path);
       for (String child : children) {
         if (child.endsWith(".class")) {
-          addIfMatching(test, child);
+          addIfMatching(test, child);   // 将该包下的所有.class文件，进行匹配（实现/继承），匹配成功则添加到一个Set集合中（集合名为matches）
         }
       }
     } catch (IOException ioe) {
@@ -240,12 +242,15 @@ public class ResolverUtil<T> {
     return packageName == null ? null : packageName.replace('.', '/');
   }
 
-  /**
-   * Add the class designated by the fully qualified class name provided to the set of
+  /* Add the class designated by the fully qualified class name provided to the set of
    * resolved classes if and only if it is approved by the Test supplied.
    *
    * @param test the test used to determine if the class matches
    * @param fqn the fully qualified name of a class
+   */
+  /**
+   * 获取包下所有的.class文件的反射对象Class，与指定类型的test进行比对。
+   *    如果匹配成功，说明是他的子类对象，则将此Class添加到matches集合中
    */
   @SuppressWarnings("unchecked")
   protected void addIfMatching(Test test, String fqn) {

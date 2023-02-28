@@ -37,7 +37,7 @@ public class XMLScriptBuilder extends BaseBuilder {
   private final XNode context;
   private boolean isDynamic;
   private final Class<?> parameterType;
-  private final Map<String, NodeHandler> nodeHandlerMap = new HashMap<String, NodeHandler>();
+  private final Map<String, NodeHandler> nodeHandlerMap = new HashMap<String, NodeHandler>();   // K：动态sql标签的名称，V：对应标签的类型处理器
 
   public XMLScriptBuilder(Configuration configuration, XNode context) {
     this(configuration, context, null);
@@ -47,7 +47,7 @@ public class XMLScriptBuilder extends BaseBuilder {
     super(configuration);
     this.context = context;
     this.parameterType = parameterType;
-    initNodeHandlerMap();
+    initNodeHandlerMap();   // 初始化动态SQL节点处理程序映射的Map
   }
 
 
@@ -63,19 +63,31 @@ public class XMLScriptBuilder extends BaseBuilder {
     nodeHandlerMap.put("bind", new BindHandler());
   }
 
+  /**
+   * 解析sql语句片段，创建一个sqlSource
+   *
+   * @return
+   */
   public SqlSource parseScriptNode() {
-    MixedSqlNode rootSqlNode = parseDynamicTags(context);
+    MixedSqlNode rootSqlNode = parseDynamicTags(context);   // 解析动态标签。对象内部存储sql片段的集合
     SqlSource sqlSource = null;
-    if (isDynamic) {
-      sqlSource = new DynamicSqlSource(configuration, rootSqlNode);
+    if (isDynamic) {    // 如果是动态SQL
+      sqlSource = new DynamicSqlSource(configuration, rootSqlNode);   // 这里是动态sqlSource的对象
     } else {
+      // 根据原始sql字符串，解析 #{} 的入参等信息，创建RawSqlSource对象
       sqlSource = new RawSqlSource(configuration, rootSqlNode, parameterType);
     }
     return sqlSource;
   }
 
+  /**
+   * 解析是否是动态SQL的标签
+   *
+   * @param node
+   * @return
+   */
   protected MixedSqlNode parseDynamicTags(XNode node) {
-    List<SqlNode> contents = new ArrayList<SqlNode>();
+    List<SqlNode> contents = new ArrayList<SqlNode>();    // sql语句片段的list
     NodeList children = node.getNode().getChildNodes();
     for (int i = 0; i < children.getLength(); i++) {
       XNode child = node.newXNode(children.item(i));
@@ -90,17 +102,20 @@ public class XMLScriptBuilder extends BaseBuilder {
         }
       } else if (child.getNode().getNodeType() == Node.ELEMENT_NODE) { // issue #628
         String nodeName = child.getNode().getNodeName();
-        NodeHandler handler = nodeHandlerMap.get(nodeName);
+        NodeHandler handler = nodeHandlerMap.get(nodeName);     // 获取对应的动态sql标签的处理器
         if (handler == null) {
           throw new BuilderException("Unknown element <" + nodeName + "> in SQL statement.");
         }
-        handler.handleNode(child, contents);
+        handler.handleNode(child, contents);    // 处理动态sql，以及标签内的属性配置
         isDynamic = true;
       }
     }
     return new MixedSqlNode(contents);
   }
 
+  /**
+   * 节点处理器接口，动态sql标签处理
+   */
   private interface NodeHandler {
     void handleNode(XNode nodeToHandle, List<SqlNode> targetContents);
   }
@@ -181,17 +196,26 @@ public class XMLScriptBuilder extends BaseBuilder {
     }
   }
 
+  /**
+   * IF类型的动态sql处理
+   */
   private class IfHandler implements NodeHandler {
     public IfHandler() {
       // Prevent Synthetic Access
     }
 
+    /**
+     * 处理if标签中的test中的表达式
+     *
+     * @param nodeToHandle
+     * @param targetContents
+     */
     @Override
     public void handleNode(XNode nodeToHandle, List<SqlNode> targetContents) {
-      MixedSqlNode mixedSqlNode = parseDynamicTags(nodeToHandle);
-      String test = nodeToHandle.getStringAttribute("test");
+      MixedSqlNode mixedSqlNode = parseDynamicTags(nodeToHandle);   // 递归，直至最后一层的动态sql标签
+      String test = nodeToHandle.getStringAttribute("test");    // if的判断条件
       IfSqlNode ifSqlNode = new IfSqlNode(mixedSqlNode, test);
-      targetContents.add(ifSqlNode);
+      targetContents.add(ifSqlNode);    // 与目标sql，建立关系（满足表达式后执行的sql片段）
     }
   }
 

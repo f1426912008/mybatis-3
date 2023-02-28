@@ -16,6 +16,8 @@
 package org.apache.ibatis.session;
 
 /**
+ * 分页
+ *
  * @author Clinton Begin
  */
 public class RowBounds {
@@ -28,8 +30,8 @@ public class RowBounds {
   private final int limit;
 
   public RowBounds() {
-    this.offset = NO_ROW_OFFSET;
-    this.limit = NO_ROW_LIMIT;
+    this.offset = NO_ROW_OFFSET;    // 起始条数 0
+    this.limit = NO_ROW_LIMIT;      // 分页条数 Integer.MAX_VALUE
   }
 
   public RowBounds(int offset, int limit) {

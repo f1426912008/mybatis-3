@@ -24,12 +24,20 @@ import java.util.Map;
 import org.apache.ibatis.builder.BuilderException;
 
 /**
+ * 解析 `#{}` 表达式
+ *
  * @author Clinton Begin
  */
 public class ExpressionEvaluator {
-
+    /**
+     * 评估布尔值，expression就是动态sql标签中的条件
+     *
+     * @param expression
+     * @param parameterObject
+     * @return
+     */
   public boolean evaluateBoolean(String expression, Object parameterObject) {
-    Object value = OgnlCache.getValue(expression, parameterObject);
+    Object value = OgnlCache.getValue(expression, parameterObject);     // 获取表达式的判断结果
     if (value instanceof Boolean) {
       return (Boolean) value;
     }
@@ -39,14 +47,25 @@ public class ExpressionEvaluator {
     return value != null;
   }
 
+    /**
+     * 评估集合、数组等值。expression是collection遍历的集合的名称
+     *
+     * @param expression
+     * @param parameterObject
+     * @return
+     */
   public Iterable<?> evaluateIterable(String expression, Object parameterObject) {
     Object value = OgnlCache.getValue(expression, parameterObject);
     if (value == null) {
       throw new BuilderException("The expression '" + expression + "' evaluated to a null value.");
     }
+
+    // 如果是集合
     if (value instanceof Iterable) {
       return (Iterable<?>) value;
     }
+
+    // 如果是数组，转换为list返回
     if (value.getClass().isArray()) {
         // the array may be primitive, so Arrays.asList() may throw
         // a ClassCastException (issue 209).  Do the work manually
@@ -59,6 +78,8 @@ public class ExpressionEvaluator {
         }
         return answer;
     }
+
+    // 如果是Map，调用键值对的方法
     if (value instanceof Map) {
       return ((Map) value).entrySet();
     }

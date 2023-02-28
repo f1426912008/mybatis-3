@@ -19,13 +19,15 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
+ * 拦截器的调用器。在方法执行的前后，拦截以做其他操作
+ *
  * @author Clinton Begin
  */
 public class Invocation {
 
-  private final Object target;
-  private final Method method;
-  private final Object[] args;
+  private final Object target;    // 目标对象
+  private final Method method;    // 执行方法
+  private final Object[] args;    // 方法参数
 
   public Invocation(Object target, Method method, Object[] args) {
     this.target = target;
@@ -45,6 +47,13 @@ public class Invocation {
     return args;
   }
 
+  /**
+   * 反射调用方法
+   *
+   * @return
+   * @throws InvocationTargetException
+   * @throws IllegalAccessException
+   */
   public Object proceed() throws InvocationTargetException, IllegalAccessException {
     return method.invoke(target, args);
   }

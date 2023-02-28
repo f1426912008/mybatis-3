@@ -78,8 +78,8 @@ public class CachingExecutor implements Executor {
 
   @Override
   public <E> List<E> query(MappedStatement ms, Object parameterObject, RowBounds rowBounds, ResultHandler resultHandler) throws SQLException {
-    BoundSql boundSql = ms.getBoundSql(parameterObject);
-    CacheKey key = createCacheKey(ms, parameterObject, rowBounds, boundSql);
+    BoundSql boundSql = ms.getBoundSql(parameterObject);    // 获取BoundSql
+    CacheKey key = createCacheKey(ms, parameterObject, rowBounds, boundSql);    // 创建缓存的key
     return query(ms, parameterObject, rowBounds, resultHandler, key, boundSql);
   }
 
@@ -92,13 +92,14 @@ public class CachingExecutor implements Executor {
   @Override
   public <E> List<E> query(MappedStatement ms, Object parameterObject, RowBounds rowBounds, ResultHandler resultHandler, CacheKey key, BoundSql boundSql)
       throws SQLException {
-    Cache cache = ms.getCache();
+    Cache cache = ms.getCache();    // 获取缓存实现类，如果不为null，从缓存取出数据并返回，否则去数据库查询返回
     if (cache != null) {
-      flushCacheIfRequired(ms);
+      flushCacheIfRequired(ms);     // 如果配置了清除缓存的属性，清除缓存
       if (ms.isUseCache() && resultHandler == null) {
         ensureNoOutParams(ms, boundSql);
         @SuppressWarnings("unchecked")
-        List<E> list = (List<E>) tcm.getObject(cache, key);
+        List<E> list = (List<E>) tcm.getObject(cache, key);     // 根据缓存实现类，缓存key，获取缓存的值
+        // 如果没有获取到值，进行查询，并加入缓存/覆盖缓存
         if (list == null) {
           list = delegate.<E> query(ms, parameterObject, rowBounds, resultHandler, key, boundSql);
           tcm.putObject(cache, key, list); // issue #578 and #116
@@ -161,6 +162,11 @@ public class CachingExecutor implements Executor {
     delegate.clearLocalCache();
   }
 
+  /**
+   * 如果配置了清除缓存的属性，清除缓存
+   *
+   * @param ms
+   */
   private void flushCacheIfRequired(MappedStatement ms) {
     Cache cache = ms.getCache();
     if (cache != null && ms.isFlushCacheRequired()) {      

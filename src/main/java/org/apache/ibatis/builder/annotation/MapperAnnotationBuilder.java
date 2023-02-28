@@ -101,17 +101,20 @@ public class MapperAnnotationBuilder {
   private final MapperBuilderAssistant assistant;
   private final Class<?> type;
 
+  // 初始化，将映射器注解加入集合
   public MapperAnnotationBuilder(Configuration configuration, Class<?> type) {
     String resource = type.getName().replace('.', '/') + ".java (best guess)";
     this.assistant = new MapperBuilderAssistant(configuration, resource);
     this.configuration = configuration;
     this.type = type;
 
+    // 普通sql语句使用此注解，value值为数组，可自动拼接多段sql片段
     sqlAnnotationTypes.add(Select.class);
     sqlAnnotationTypes.add(Insert.class);
     sqlAnnotationTypes.add(Update.class);
     sqlAnnotationTypes.add(Delete.class);
 
+    // 动态sql语句使用此注解，type为使用哪个类，method为使用类中的哪个方法，在方法中创建动态的sql语句
     sqlProviderAnnotationTypes.add(SelectProvider.class);
     sqlProviderAnnotationTypes.add(InsertProvider.class);
     sqlProviderAnnotationTypes.add(UpdateProvider.class);
@@ -120,8 +123,8 @@ public class MapperAnnotationBuilder {
 
   public void parse() {
     String resource = type.toString();
-    if (!configuration.isResourceLoaded(resource)) {
-      loadXmlResource();
+    if (!configuration.isResourceLoaded(resource)) {    // 判断当前接口是否已加载
+      loadXmlResource();    // 加载mapper的XML资源
       configuration.addLoadedResource(resource);
       assistant.setCurrentNamespace(type.getName());
       parseCache();
@@ -160,6 +163,10 @@ public class MapperAnnotationBuilder {
     // Spring may not know the real resource name so we check a flag
     // to prevent loading again a resource twice
     // this flag is set at XMLMapperBuilder#bindMapperForNamespace
+    /** Spring可能不知道真实的资源名称，因此我们检查一个标志以防止再次加载资源两次。
+     * 该标志设置在
+     * @see XMLMapperBuilder#bindMapperForNamespace
+     */
     if (!configuration.isResourceLoaded("namespace:" + type.getName())) {
       String xmlResource = type.getName().replace('.', '/') + ".xml";
       InputStream inputStream = null;
@@ -286,6 +293,7 @@ public class MapperAnnotationBuilder {
   void parseStatement(Method method) {
     Class<?> parameterTypeClass = getParameterType(method);
     LanguageDriver languageDriver = getLanguageDriver(method);
+    // 从注解里获取SQL语句
     SqlSource sqlSource = getSqlSourceFromAnnotations(method, parameterTypeClass, languageDriver);
     if (sqlSource != null) {
       Options options = method.getAnnotation(Options.class);
@@ -302,10 +310,12 @@ public class MapperAnnotationBuilder {
       KeyGenerator keyGenerator;
       String keyProperty = "id";
       String keyColumn = null;
+      // 如果是新增/修改类型的sql，判断是否需要主键自增
       if (SqlCommandType.INSERT.equals(sqlCommandType) || SqlCommandType.UPDATE.equals(sqlCommandType)) {
         // first check for SelectKey annotation - that overrides everything else
         SelectKey selectKey = method.getAnnotation(SelectKey.class);
         if (selectKey != null) {
+          // 处理主键注解
           keyGenerator = handleSelectKeyAnnotation(selectKey, mappedStatementId, getParameterType(method), languageDriver);
           keyProperty = selectKey.keyProperty();
         } else if (options == null) {
@@ -375,7 +385,7 @@ public class MapperAnnotationBuilder {
           options != null ? nullOrEmpty(options.resultSets()) : null);
     }
   }
-  
+
   private LanguageDriver getLanguageDriver(Method method) {
     Lang lang = method.getAnnotation(Lang.class);
     Class<?> langClass = null;
@@ -452,10 +462,18 @@ public class MapperAnnotationBuilder {
     return returnType;
   }
 
+  /**
+   * 从注解里获取SQL语句
+   *
+   * @param method
+   * @param parameterType
+   * @param languageDriver
+   * @return
+   */
   private SqlSource getSqlSourceFromAnnotations(Method method, Class<?> parameterType, LanguageDriver languageDriver) {
     try {
-      Class<? extends Annotation> sqlAnnotationType = getSqlAnnotationType(method);
-      Class<? extends Annotation> sqlProviderAnnotationType = getSqlProviderAnnotationType(method);
+      Class<? extends Annotation> sqlAnnotationType = getSqlAnnotationType(method);   // 获取执行的方法上加的注解
+      Class<? extends Annotation> sqlProviderAnnotationType = getSqlProviderAnnotationType(method);   // 是否加有SqlProvider的注解
       if (sqlAnnotationType != null) {
         if (sqlProviderAnnotationType != null) {
           throw new BindingException("You cannot supply both a static SQL and SqlProvider to method named " + method.getName());
@@ -473,6 +491,14 @@ public class MapperAnnotationBuilder {
     }
   }
 
+  /**
+   * 从字符串构建SQL
+   *
+   * @param strings
+   * @param parameterTypeClass
+   * @param languageDriver
+   * @return
+   */
   private SqlSource buildSqlSourceFromStrings(String[] strings, Class<?> parameterTypeClass, LanguageDriver languageDriver) {
     final StringBuilder sql = new StringBuilder();
     for (String fragment : strings) {
@@ -482,11 +508,17 @@ public class MapperAnnotationBuilder {
     return languageDriver.createSqlSource(configuration, sql.toString().trim(), parameterTypeClass);
   }
 
+  /**
+   * 获取Sql命令的类型
+   *
+   * @param method
+   * @return
+   */
   private SqlCommandType getSqlCommandType(Method method) {
-    Class<? extends Annotation> type = getSqlAnnotationType(method);
+    Class<? extends Annotation> type = getSqlAnnotationType(method);    // 获取方法上添加的注解
 
     if (type == null) {
-      type = getSqlProviderAnnotationType(method);
+      type = getSqlProviderAnnotationType(method);    // 是否加有SqlProvider的注解
 
       if (type == null) {
         return SqlCommandType.UNKNOWN;
@@ -514,6 +546,13 @@ public class MapperAnnotationBuilder {
     return chooseAnnotationType(method, sqlProviderAnnotationTypes);
   }
 
+  /**
+   * 获取mapper的方法上加了哪种注解（判断方法是增删改查的哪一种）
+   *
+   * @param method
+   * @param types
+   * @return
+   */
   private Class<? extends Annotation> chooseAnnotationType(Method method, Set<Class<? extends Annotation>> types) {
     for (Class<? extends Annotation> type : types) {
       Annotation annotation = method.getAnnotation(type);
@@ -551,7 +590,7 @@ public class MapperAnnotationBuilder {
       resultMappings.add(resultMapping);
     }
   }
-  
+
   private String nestedSelectId(Result result) {
     String nestedSelect = result.one().select();
     if (nestedSelect.length() < 1) {
@@ -572,12 +611,12 @@ public class MapperAnnotationBuilder {
     }
     return isLazy;
   }
-  
+
   private boolean hasNestedSelect(Result result) {
     if (result.one().select().length() > 0 && result.many().select().length() > 0) {
       throw new BuilderException("Cannot use both @One and @Many annotations in the same @Result");
     }
-    return result.one().select().length() > 0 || result.many().select().length() > 0;  
+    return result.one().select().length() > 0 || result.many().select().length() > 0;
   }
 
   private void applyConstructorArgs(Arg[] args, Class<?> resultType, List<ResultMapping> resultMappings) {
@@ -621,6 +660,15 @@ public class MapperAnnotationBuilder {
     return args == null ? new Arg[0] : args.value();
   }
 
+  /**
+   * 处理主键注解
+   *
+   * @param selectKeyAnnotation
+   * @param baseStatementId
+   * @param parameterTypeClass
+   * @param languageDriver
+   * @return
+   */
   private KeyGenerator handleSelectKeyAnnotation(SelectKey selectKeyAnnotation, String baseStatementId, Class<?> parameterTypeClass, LanguageDriver languageDriver) {
     String id = baseStatementId + SelectKeyGenerator.SELECT_KEY_SUFFIX;
     Class<?> resultTypeClass = selectKeyAnnotation.resultType();

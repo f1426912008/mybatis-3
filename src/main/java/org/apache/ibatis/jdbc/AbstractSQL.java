@@ -21,6 +21,8 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
+ * SQL语句构建器。通过代码动态生成sql语句
+ *
  * @author Clinton Begin
  * @author Jeff Butler
  * @author Adam Gent
@@ -274,10 +276,16 @@ public abstract class AbstractSQL<T> {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sql().sql(sb);
+    sql().sql(sb);    // 进行sql语句的拼接
+    System.err.println("------------------------------------------------------------");
+    System.err.println(sb);
+    System.err.println("------------------------------------------------------------");
     return sb.toString();
   }
 
+  /**
+   * 类似 {@link StringBuilder} 的类，进行sql拼接操作的类
+   */
   private static class SafeAppendable {
     private final Appendable a;
     private boolean empty = true;
@@ -305,6 +313,9 @@ public abstract class AbstractSQL<T> {
 
   }
 
+  /**
+   * SQL语句构建的核心类
+   */
   private static class SQLStatement {
 
     public enum StatementType {
@@ -333,6 +344,16 @@ public abstract class AbstractSQL<T> {
         // Prevent Synthetic Access
     }
 
+    /**
+     * sql子句拼接
+     *
+     * @param builder       初始的语句，后续在此对象上进行拼接操作
+     * @param keyword       sql的关键字
+     * @param parts         字段/条件的集合
+     * @param open          前缀
+     * @param close         后缀
+     * @param conjunction   连接的分隔符
+     */
     private void sqlClause(SafeAppendable builder, String keyword, List<String> parts, String open, String close,
                            String conjunction) {
       if (!parts.isEmpty()) {

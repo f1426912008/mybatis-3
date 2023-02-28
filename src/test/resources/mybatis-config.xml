@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+  <!--属性配置，config.properties中可以替换配置，使用`${字段名}`取值，如下面datasource配置-->
+  <properties resource="config.properties">
+    <property name="datasource_driver" value="com.mysql.jdbc.Driver"/>
+    <property name="datasource_url" value="jdbc:mysql://localhost:3306/web01?useSSL=false"/>
+    <property name="datasource_username" value="root"/>
+    <property name="datasource_password" value="123asd"/>
+  </properties>
+
+  <settings>
+  <!--  <setting name="cache" value="true"/>-->
+    <setting name="logImpl" value="STDOUT_LOGGING" />
+  </settings>
+
+  <!--别名配置-->
+  <typeAliases>
+    <!--指定到类-->
+    <typeAlias alias="Integer" type="java.lang.Integer" />
+    <typeAlias alias="Long" type="java.lang.Long" />
+    <typeAlias alias="HashMap" type="java.util.HashMap" />
+    <typeAlias alias="LinkedHashMap" type="java.util.LinkedHashMap" />
+    <typeAlias alias="ArrayList" type="java.util.ArrayList" />
+    <typeAlias alias="LinkedList" type="java.util.LinkedList" />
+
+    <!--指定到包-->
+    <package name="com.it.bean"/>
+  </typeAliases>
+
+  <!--插件配置、拦截器-->
+  <plugins>
+    <plugin interceptor="com.it.interceptor.MyInterceptor">
+      <property name="pageNum" value="${page_pageNum}"/>
+      <property name="pageSize" value="${page_pageSize}"/>
+    </plugin>
+    <plugin interceptor="com.github.pagehelper.PageInterceptor">
+      <!-- 指定数据库类型，PageHelper插件4.0.0以后的版本支持自动识别使用的数据库，可以不用配置 -->
+      <!--<property name="dialect" value="mysql"/>-->
+      <!-- 设置为true时，会将RowBounds第一个参数offset当成pageNum页码使用 -->
+      <property name="offsetAsPageNum" value="true"/>
+      <!-- 设置为true时，使用RowBounds分页会进行count查询 -->
+      <property name="rowBoundsWithCount" value="true"/>
+      <!-- 设置为true时，如果pageSize=0或者RowBounds.limit = 0就会查询出全部的结果 -->
+      <property name="pageSizeZero" value="true"/>
+      <!-- 启用合理化时，如果pageNum<1会查询第一页，如果pageNum>pages会查询最后一页 -->
+      <!-- 禁用合理化时，如果pageNum<1或pageNum>pages会返回空数据 -->
+      <property name="reasonable" value="false"/>
+      <!-- 支持通过Mapper接口参数来传递分页参数 -->
+      <property name="supportMethodsArguments" value="false"/>
+      <!-- always总是返回PageInfo类型,check检查返回类型是否为PageInfo,none返回Page -->
+      <property name="returnPageInfo" value="none"/>
+    </plugin>
+  </plugins>
+
+  <!--环境配置，数据源-->
+  <environments default="development">
+    <environment id="development">
+      <transactionManager type="JDBC"/>
+      <dataSource type="POOLED">
+        <property name="driver" value="${datasource_driver}"/>
+        <property name="url" value="${datasource_url}"/>
+        <property name="username" value="${datasource_username}"/>
+        <property name="password" value="${datasource_password}"/>
+      </dataSource>
+    </environment>
+  </environments>
+
+  <!--映射的XMl文件，sql语句-->
+  <mappers>
+    <!--按包名扫描，仅扫描.class文件，使用`.`进行分隔-->
+    <!--
+    <package name="mapper"/>
+    -->
+
+    <!--扫描指定的文件-->
+    <mapper resource="mapper/StudentMapper.xml"/>
+    <mapper resource="mapper/UserMapper.xml"/>
+  </mappers>
+
+</configuration>

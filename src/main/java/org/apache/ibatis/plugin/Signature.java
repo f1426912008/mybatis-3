@@ -27,9 +27,16 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({})
 public @interface Signature {
-  Class<?> type();
+  /**
+   * 可拦截的Class：
+   *    sql执行器：Executor.class
+   *    参数处理器：ParameterHandler.class
+   *    结果处理器：ResultSetHandler.class
+   *    语句处理器：StatementHandler.class
+   */
+  Class<?> type();    // 拦截的类型
 
-  String method();
+  String method();    // 拦截的方法
 
-  Class<?>[] args();
+  Class<?>[] args();    // 拦截的方法用到的参数
 }

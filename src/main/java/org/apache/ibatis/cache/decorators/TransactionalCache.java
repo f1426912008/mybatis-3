@@ -36,13 +36,17 @@ import org.apache.ibatis.logging.LogFactory;
  * @author Clinton Begin
  * @author Eduardo Macarron
  */
+
+/**
+ * 缓存的实现类：事务缓存
+ */
 public class TransactionalCache implements Cache {
 
   private static final Log log = LogFactory.getLog(TransactionalCache.class);
 
   private final Cache delegate;
-  private boolean clearOnCommit;
-  private final Map<Object, Object> entriesToAddOnCommit;
+  private boolean clearOnCommit;    // 是否需要提交事务时清除缓存
+  private final Map<Object, Object> entriesToAddOnCommit;     // 缓存key，value的Map
   private final Set<Object> entriesMissedInCache;
 
   public TransactionalCache(Cache delegate) {
@@ -62,10 +66,16 @@ public class TransactionalCache implements Cache {
     return delegate.getSize();
   }
 
+  /**
+   * 获取缓存
+   *
+   * @param key The key
+   * @return
+   */
   @Override
   public Object getObject(Object key) {
     // issue #116
-    Object object = delegate.getObject(key);
+    Object object = delegate.getObject(key);    // 执行指定的缓存实现类的getObject方法
     if (object == null) {
       entriesMissedInCache.add(key);
     }
@@ -82,6 +92,12 @@ public class TransactionalCache implements Cache {
     return null;
   }
 
+  /**
+   * 放入缓存
+   *
+   * @param key Can be any object but usually it is a CacheKey
+   * @param object
+   */
   @Override
   public void putObject(Object key, Object object) {
     entriesToAddOnCommit.put(key, object);
@@ -98,6 +114,9 @@ public class TransactionalCache implements Cache {
     entriesToAddOnCommit.clear();
   }
 
+  /**
+   * 提交事务时清除缓存
+   */
   public void commit() {
     if (clearOnCommit) {
       delegate.clear();

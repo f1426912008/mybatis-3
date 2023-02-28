@@ -28,7 +28,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface SelectProvider {
-  Class<?> type();
+  Class<?> type();    // 执行sql语句所在的类
 
-  String method();
+  String method();    // 执行sql语句所在的方法
 }

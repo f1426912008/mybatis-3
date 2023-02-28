@@ -240,7 +240,7 @@ class PooledConnection implements InvocationHandler {
         if (!Object.class.equals(method.getDeclaringClass())) {
           // issue #579 toString() should never fail
           // throw an SQLException instead of a Runtime
-          checkConnection();
+          checkConnection();    // 检查连接是否是有效的
         }
         return method.invoke(realConnection, args);
       } catch (Throwable t) {

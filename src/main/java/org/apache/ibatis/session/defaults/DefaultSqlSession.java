@@ -40,6 +40,7 @@ import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
 
 /**
+ * 默认的SqlSession对象
  *
  * The default implementation for {@link SqlSession}.
  * Note that this class is not Thread-Safe.
@@ -49,9 +50,9 @@ import org.apache.ibatis.session.SqlSession;
 public class DefaultSqlSession implements SqlSession {
 
   private final Configuration configuration;
-  private final Executor executor;
+  private final Executor executor;    // 执行器
 
-  private final boolean autoCommit;
+  private final boolean autoCommit;   // 自动提交事务
   private boolean dirty;
   private List<Cursor<?>> cursorList;
 
@@ -144,7 +145,7 @@ public class DefaultSqlSession implements SqlSession {
   @Override
   public <E> List<E> selectList(String statement, Object parameter, RowBounds rowBounds) {
     try {
-      MappedStatement ms = configuration.getMappedStatement(statement);
+      MappedStatement ms = configuration.getMappedStatement(statement);   // 获取存SQL语句的对象
       return executor.query(ms, wrapCollection(parameter), rowBounds, Executor.NO_RESULT_HANDLER);
     } catch (Exception e) {
       throw ExceptionFactory.wrapException("Error querying database.  Cause: " + e, e);
@@ -180,6 +181,13 @@ public class DefaultSqlSession implements SqlSession {
     return insert(statement, null);
   }
 
+  /**
+   * Insert语句
+   *
+   * @param statement Unique identifier matching the statement to execute.
+   * @param parameter A parameter object to pass to the statement.
+   * @return
+   */
   @Override
   public int insert(String statement, Object parameter) {
     return update(statement, parameter);
@@ -194,8 +202,8 @@ public class DefaultSqlSession implements SqlSession {
   public int update(String statement, Object parameter) {
     try {
       dirty = true;
-      MappedStatement ms = configuration.getMappedStatement(statement);
-      return executor.update(ms, wrapCollection(parameter));
+      MappedStatement ms = configuration.getMappedStatement(statement);   // 获取存SQL语句的对象
+      return executor.update(ms, wrapCollection(parameter));    // 执行器执行该SQL
     } catch (Exception e) {
       throw ExceptionFactory.wrapException("Error updating database.  Cause: " + e, e);
     } finally {
@@ -317,6 +325,12 @@ public class DefaultSqlSession implements SqlSession {
     return (!autoCommit && dirty) || force;
   }
 
+  /**
+   * 分析入参。如果是集合/数组，封装返回一个map；否则返回原对象object
+   *
+   * @param object
+   * @return
+   */
   private Object wrapCollection(final Object object) {
     if (object instanceof Collection) {
       StrictMap<Object> map = new StrictMap<Object>();

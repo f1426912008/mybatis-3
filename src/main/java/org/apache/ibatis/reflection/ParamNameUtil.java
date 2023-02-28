@@ -35,6 +35,12 @@ public class ParamNameUtil {
     return getParameterNames(constructor);
   }
 
+  /**
+   * 获取 方法/构造方法 的所有入参的名称
+   *
+   * @param executable
+   * @return
+   */
   private static List<String> getParameterNames(Executable executable) {
     final List<String> names = new ArrayList<String>();
     final Parameter[] params = executable.getParameters();

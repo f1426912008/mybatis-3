@@ -36,7 +36,7 @@ import org.apache.ibatis.logging.LogFactory;
 
 /**
  * A default implementation of {@link VFS} that works for most application servers.
- * 
+ * 适用于大多数应用程序服务器的默认实现。VFS是mybatis中用来表示虚拟文件系统的一个抽象类，用来查找指定路径下的资源。
  * @author Ben Gunter
  */
 public class DefaultVFS extends VFS {

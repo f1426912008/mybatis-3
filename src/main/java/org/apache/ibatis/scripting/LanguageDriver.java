@@ -38,6 +38,8 @@ public interface LanguageDriver {
   ParameterHandler createParameterHandler(MappedStatement mappedStatement, Object parameterObject, BoundSql boundSql);
 
   /**
+   * 创建一个 {@link SqlSource}，用于保存从映射器xml文件读取的语句。当从类或xml文件读取映射语句时，在启动期间调用它。
+   *
    * Creates an {@link SqlSource} that will hold the statement read from a mapper xml file. 
    * It is called during startup, when the mapped statement is read from a class or an xml file.
    * 

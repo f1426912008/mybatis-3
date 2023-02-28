@@ -42,14 +42,21 @@ import java.util.*;
  */
 public class MapperMethod {
 
-  private final SqlCommand command;
-  private final MethodSignature method;
+  private final SqlCommand command;   // SQL验证类，Mapper方法名字、SQL类型（增删改查...）
+  private final MethodSignature method;   // 存储Mapper方法的验证信息（返回值、入参等信息）
 
   public MapperMethod(Class<?> mapperInterface, Method method, Configuration config) {
     this.command = new SqlCommand(config, mapperInterface, method);
     this.method = new MethodSignature(config, mapperInterface, method);
   }
 
+  /**
+   * 根据方法的具体验证信息，执行对应的sql
+   *
+   * @param sqlSession
+   * @param args
+   * @return
+   */
   public Object execute(SqlSession sqlSession, Object[] args) {
     Object result;
     switch (command.getType()) {
@@ -79,7 +86,7 @@ public class MapperMethod {
         } else if (method.returnsCursor()) {
           result = executeForCursor(sqlSession, args);
         } else {
-          Object param = method.convertArgsToSqlCommandParam(args);
+          Object param = method.convertArgsToSqlCommandParam(args);   // 将Args转换为Sql命令参数(param1...格式，注解指定名称的除外)
           result = sqlSession.selectOne(command.getName(), param);
         }
         break;
@@ -131,7 +138,7 @@ public class MapperMethod {
 
   private <E> Object executeForMany(SqlSession sqlSession, Object[] args) {
     List<E> result;
-    Object param = method.convertArgsToSqlCommandParam(args);
+    Object param = method.convertArgsToSqlCommandParam(args);   // 将参数转换解析为格式化的Sql命令参数
     if (method.hasRowBounds()) {
       RowBounds rowBounds = method.extractRowBounds(args);
       result = sqlSession.<E>selectList(command.getName(), param, rowBounds);
@@ -208,6 +215,9 @@ public class MapperMethod {
 
   }
 
+  /**
+   * SQL验证类，Mapper方法名字、SQL类型（增删改查...）
+   */
   public static class SqlCommand {
 
     private final String name;
@@ -264,13 +274,16 @@ public class MapperMethod {
     }
   }
 
+  /**
+   * 方法签名，存储Mapper方法的信息（返回值、入参...）
+   */
   public static class MethodSignature {
 
-    private final boolean returnsMany;
-    private final boolean returnsMap;
-    private final boolean returnsVoid;
-    private final boolean returnsCursor;
-    private final Class<?> returnType;
+    private final boolean returnsMany;    // 返回多个值
+    private final boolean returnsMap;     // 返回Map集合
+    private final boolean returnsVoid;    // 无返回值
+    private final boolean returnsCursor;  // 返回游标（暂未遇到）
+    private final Class<?> returnType;    // 返回值类型
     private final String mapKey;
     private final Integer resultHandlerIndex;
     private final Integer rowBoundsIndex;

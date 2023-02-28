@@ -33,6 +33,8 @@ import java.util.NoSuchElementException;
  * This is the default implementation of a MyBatis Cursor.
  * This implementation is not thread safe.
  *
+ * 这是MyBatis游标的默认实现。这个实现不是线程安全的。
+ *
  * @author Guillaume Darmont / guillaume@dropinocean.com
  */
 public class DefaultCursor<T> implements Cursor<T> {

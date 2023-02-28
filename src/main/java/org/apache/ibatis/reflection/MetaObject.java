@@ -123,9 +123,15 @@ public class MetaObject {
     }
   }
 
+  /**
+   * 为实体类的属性赋值，递归方法
+   *
+   * @param name
+   * @param value
+   */
   public void setValue(String name, Object value) {
     PropertyTokenizer prop = new PropertyTokenizer(name);
-    if (prop.hasNext()) {
+    if (prop.hasNext()) {   // 判断当前的属性是否有子属性（名称含有点的，如：student.name）
       MetaObject metaValue = metaObjectForProperty(prop.getIndexedName());
       if (metaValue == SystemMetaObject.NULL_META_OBJECT) {
         if (value == null && prop.getChildren() != null) {
@@ -135,9 +141,9 @@ public class MetaObject {
           metaValue = objectWrapper.instantiatePropertyValue(name, prop, objectFactory);
         }
       }
-      metaValue.setValue(prop.getChildren(), value);
+      metaValue.setValue(prop.getChildren(), value);    // 方法递归。直至到属性的最后一级
     } else {
-      objectWrapper.set(prop, value);
+      objectWrapper.set(prop, value);   // 为实体类的属性赋值
     }
   }
 

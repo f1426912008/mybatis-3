@@ -52,14 +52,14 @@ public abstract class BaseExecutor implements Executor {
   private static final Log log = LogFactory.getLog(BaseExecutor.class);
 
   protected Transaction transaction;
-  protected Executor wrapper;
+  protected Executor wrapper;   // 执行器
 
   protected ConcurrentLinkedQueue<DeferredLoad> deferredLoads;
-  protected PerpetualCache localCache;
+  protected PerpetualCache localCache;    // 本地缓存
   protected PerpetualCache localOutputParameterCache;
   protected Configuration configuration;
 
-  protected int queryStack;
+  protected int queryStack;   // 查询堆栈
   private boolean closed;
 
   protected BaseExecutor(Configuration configuration, Transaction transaction) {
@@ -113,8 +113,8 @@ public abstract class BaseExecutor implements Executor {
     if (closed) {
       throw new ExecutorException("Executor was closed.");
     }
-    clearLocalCache();
-    return doUpdate(ms, parameter);
+    clearLocalCache();    // 清除缓存
+    return doUpdate(ms, parameter);   // 执行更新操作
   }
 
   @Override
@@ -143,17 +143,17 @@ public abstract class BaseExecutor implements Executor {
     if (closed) {
       throw new ExecutorException("Executor was closed.");
     }
-    if (queryStack == 0 && ms.isFlushCacheRequired()) {
-      clearLocalCache();
+    if (queryStack == 0 && ms.isFlushCacheRequired()) {   // 是否需要刷新缓存
+      clearLocalCache();    // 清缓存
     }
     List<E> list;
     try {
       queryStack++;
-      list = resultHandler == null ? (List<E>) localCache.getObject(key) : null;
+      list = resultHandler == null ? (List<E>) localCache.getObject(key) : null;    // 尝试从缓存Map获取结果
       if (list != null) {
-        handleLocallyCachedOutputParameters(ms, key, parameter, boundSql);
+        handleLocallyCachedOutputParameters(ms, key, parameter, boundSql);    // 处理本地缓存的输出参数
       } else {
-        list = queryFromDatabase(ms, parameter, rowBounds, resultHandler, key, boundSql);
+        list = queryFromDatabase(ms, parameter, rowBounds, resultHandler, key, boundSql);   // 从数据库去查询
       }
     } finally {
       queryStack--;
@@ -197,13 +197,13 @@ public abstract class BaseExecutor implements Executor {
       throw new ExecutorException("Executor was closed.");
     }
     CacheKey cacheKey = new CacheKey();
-    cacheKey.update(ms.getId());
-    cacheKey.update(rowBounds.getOffset());
-    cacheKey.update(rowBounds.getLimit());
-    cacheKey.update(boundSql.getSql());
-    List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();
-    TypeHandlerRegistry typeHandlerRegistry = ms.getConfiguration().getTypeHandlerRegistry();
-    // mimic DefaultParameterHandler logic
+    cacheKey.update(ms.getId());    // 调用的方法名
+    cacheKey.update(rowBounds.getOffset());   // 分页：起始页
+    cacheKey.update(rowBounds.getLimit());    // 分页：每页条数
+    cacheKey.update(boundSql.getSql());   // 执行的SQL语句
+    List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();   // 入参类型
+    TypeHandlerRegistry typeHandlerRegistry = ms.getConfiguration().getTypeHandlerRegistry();   // 类型处理器
+    // mimic DefaultParameterHandler logic    入参映射一般不用，跳过！！
     for (ParameterMapping parameterMapping : parameterMappings) {
       if (parameterMapping.getMode() != ParameterMode.OUT) {
         Object value;
@@ -222,7 +222,7 @@ public abstract class BaseExecutor implements Executor {
       }
     }
     if (configuration.getEnvironment() != null) {
-      // issue #176
+      // issue #176   // 数据库连接的环境id
       cacheKey.update(configuration.getEnvironment().getId());
     }
     return cacheKey;
@@ -259,6 +259,9 @@ public abstract class BaseExecutor implements Executor {
     }
   }
 
+  /**
+   * 清空缓存的Map
+   */
   @Override
   public void clearLocalCache() {
     if (!closed) {

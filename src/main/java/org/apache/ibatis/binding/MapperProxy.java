@@ -34,9 +34,9 @@ import org.apache.ibatis.session.SqlSession;
 public class MapperProxy<T> implements InvocationHandler, Serializable {
 
   private static final long serialVersionUID = -6424540398559729838L;
-  private final SqlSession sqlSession;
-  private final Class<T> mapperInterface;
-  private final Map<Method, MapperMethod> methodCache;
+  private final SqlSession sqlSession;    // SqlSession对象
+  private final Class<T> mapperInterface;   // mapper接口，代理的接口
+  private final Map<Method, MapperMethod> methodCache;    // mapper接口的方法缓存Map
 
   public MapperProxy(SqlSession sqlSession, Class<T> mapperInterface, Map<Method, MapperMethod> methodCache) {
     this.sqlSession = sqlSession;
@@ -44,6 +44,15 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
     this.methodCache = methodCache;
   }
 
+  /**
+   * 反射调用方法
+   *
+   * @param proxy
+   * @param method
+   * @param args
+   * @return
+   * @throws Throwable
+   */
   @Override
   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
     try {
@@ -55,10 +64,17 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
     } catch (Throwable t) {
       throw ExceptionUtil.unwrapThrowable(t);
     }
+    // 获取到方法信息，并存在一个methodCache的Map里
     final MapperMethod mapperMethod = cachedMapperMethod(method);
-    return mapperMethod.execute(sqlSession, args);
+    return mapperMethod.execute(sqlSession, args);    // 调用并返回结果
   }
 
+  /**
+   * 获取到接口的方法，并存储在一个methodCache的 Map里
+   *
+   * @param method
+   * @return mapperMethod 存储了该方法的所有验证的信息（对应的SQL类型、方法返回值和入参的信息）
+   */
   private MapperMethod cachedMapperMethod(Method method) {
     MapperMethod mapperMethod = methodCache.get(method);
     if (mapperMethod == null) {

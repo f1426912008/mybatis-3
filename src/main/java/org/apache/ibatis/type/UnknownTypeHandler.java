@@ -41,7 +41,7 @@ public class UnknownTypeHandler extends BaseTypeHandler<Object> {
   @Override
   public void setNonNullParameter(PreparedStatement ps, int i, Object parameter, JdbcType jdbcType)
       throws SQLException {
-    TypeHandler handler = resolveTypeHandler(parameter, jdbcType);
+    TypeHandler handler = resolveTypeHandler(parameter, jdbcType);    // 解析java参数的类型
     handler.setParameter(ps, i, parameter, jdbcType);
   }
 
@@ -68,12 +68,19 @@ public class UnknownTypeHandler extends BaseTypeHandler<Object> {
     return cs.getObject(columnIndex);
   }
 
+  /**
+   * 解析类型处理器
+   *
+   * @param parameter 入参
+   * @param jdbcType  jdbc类型
+   * @return
+   */
   private TypeHandler<? extends Object> resolveTypeHandler(Object parameter, JdbcType jdbcType) {
     TypeHandler<? extends Object> handler;
     if (parameter == null) {
       handler = OBJECT_TYPE_HANDLER;
     } else {
-      handler = typeHandlerRegistry.getTypeHandler(parameter.getClass(), jdbcType);
+      handler = typeHandlerRegistry.getTypeHandler(parameter.getClass(), jdbcType);   // 根据jdbc类型获取到java参数的类型
       // check if handler is null (issue #270)
       if (handler == null || handler instanceof UnknownTypeHandler) {
         handler = OBJECT_TYPE_HANDLER;
@@ -82,6 +89,13 @@ public class UnknownTypeHandler extends BaseTypeHandler<Object> {
     return handler;
   }
 
+  /**
+   * 解析类型处理器
+   *
+   * @param rs 结果集
+   * @param column 列
+   * @return
+   */
   private TypeHandler<?> resolveTypeHandler(ResultSet rs, String column) {
     try {
       Map<String,Integer> columnIndexLookup;

@@ -31,7 +31,7 @@ import org.apache.ibatis.reflection.property.PropertyTokenizer;
  */
 public class MetaClass {
 
-  private final ReflectorFactory reflectorFactory;
+  private final ReflectorFactory reflectorFactory;    // 默认为 DefaultReflectorFactory对象
   private final Reflector reflector;
 
   private MetaClass(Class<?> type, ReflectorFactory reflectorFactory) {
@@ -43,6 +43,12 @@ public class MetaClass {
     return new MetaClass(type, reflectorFactory);
   }
 
+  /**
+   * 根据属性名称，构建一个 MetaClass的对象
+   *
+   * @param name
+   * @return
+   */
   public MetaClass metaClassForProperty(String name) {
     Class<?> propType = reflector.getGetterType(name);
     return MetaClass.forClass(propType, reflectorFactory);
@@ -68,9 +74,17 @@ public class MetaClass {
     return reflector.getSetablePropertyNames();
   }
 
+  /**
+   * 获取字段对应的setter方法名称
+   *
+   * @param name
+   * @return
+   */
   public Class<?> getSetterType(String name) {
     PropertyTokenizer prop = new PropertyTokenizer(name);
-    if (prop.hasNext()) {
+    // prop为判断当前字段是否含有'.'，如果有，说明是复杂对象，继续获取内部对象，直至没有'.'存在。
+    // 这就是属性可以重复使用'.'获取内部字段的原因
+    if (prop.hasNext()) {   // 如果不包含子对象的属性
       MetaClass metaProp = metaClassForProperty(prop.getName());
       return metaProp.getSetterType(prop.getChildren());
     } else {
@@ -78,6 +92,12 @@ public class MetaClass {
     }
   }
 
+  /**
+   * 获取字段对应的getter方法的返回值类型
+   *
+   * @param name
+   * @return
+   */
   public Class<?> getGetterType(String name) {
     PropertyTokenizer prop = new PropertyTokenizer(name);
     if (prop.hasNext()) {
@@ -93,6 +113,12 @@ public class MetaClass {
     return MetaClass.forClass(propType, reflectorFactory);
   }
 
+  /**
+   * 获取字段对应的getter方法的返回值类型
+   *
+   * @param prop
+   * @return
+   */
   private Class<?> getGetterType(PropertyTokenizer prop) {
     Class<?> type = reflector.getGetterType(prop.getName());
     if (prop.getIndex() != null && Collection.class.isAssignableFrom(type)) {

@@ -35,11 +35,13 @@ import org.apache.ibatis.reflection.MetaObject;
 import org.apache.ibatis.reflection.SystemMetaObject;
 
 /**
+ * 缓存构建器
+ *
  * @author Clinton Begin
  */
 public class CacheBuilder {
-  private final String id;
-  private Class<? extends Cache> implementation;
+  private final String id;    // 缓存名称的id
+  private Class<? extends Cache> implementation;    // 实现了Cache接口的实现类Class
   private final List<Class<? extends Cache>> decorators;
   private Integer size;
   private Long clearInterval;

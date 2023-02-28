@@ -20,7 +20,7 @@ package org.apache.ibatis.scripting.xmltags;
  */
 public class IfSqlNode implements SqlNode {
   private final ExpressionEvaluator evaluator;
-  private final String test;
+  private final String test;    // 判断条件
   private final SqlNode contents;
 
   public IfSqlNode(SqlNode contents, String test) {
@@ -31,6 +31,7 @@ public class IfSqlNode implements SqlNode {
 
   @Override
   public boolean apply(DynamicContext context) {
+    // 判断Ognl的条件是否成立，成立则拼接sql片段
     if (evaluator.evaluateBoolean(test, context.getBindings())) {
       contents.apply(context);
       return true;

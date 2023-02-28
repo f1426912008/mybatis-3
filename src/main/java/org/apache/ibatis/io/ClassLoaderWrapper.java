@@ -21,12 +21,14 @@ import java.net.URL;
 /**
  * A class to wrap access to multiple class loaders making them work as one
  *
+ * 用于包装对多个类加载器的访问，使它们作为一个类工作
+ *
  * @author Clinton Begin
  */
 public class ClassLoaderWrapper {
 
-  ClassLoader defaultClassLoader;
-  ClassLoader systemClassLoader;
+  ClassLoader defaultClassLoader;   // 默认类加载器
+  ClassLoader systemClassLoader;    // 系统类加载器
 
   ClassLoaderWrapper() {
     try {
@@ -201,6 +203,12 @@ public class ClassLoaderWrapper {
 
   }
 
+  /**
+   * 获取类加载器的数组
+   *
+   * @param classLoader
+   * @return
+   */
   ClassLoader[] getClassLoaders(ClassLoader classLoader) {
     return new ClassLoader[]{
         classLoader,

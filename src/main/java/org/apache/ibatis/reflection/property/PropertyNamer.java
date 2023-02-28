@@ -20,14 +20,26 @@ import java.util.Locale;
 import org.apache.ibatis.reflection.ReflectionException;
 
 /**
+ * Bean的属性字段判断的工具类
+ *
  * @author Clinton Begin
  */
 public final class PropertyNamer {
 
+  /**
+   * 防止静态类实例化
+   */
   private PropertyNamer() {
     // Prevent Instantiation of Static Class
   }
 
+  /**
+   * 可以根据set/get方法名，获取到对应的字段名称。
+   * 方法名称必须是 getXxx、setXxx、isXxx，对应字段则是 xxx，其他情况抛出异常
+   *
+   * @param name
+   * @return
+   */
   public static String methodToProperty(String name) {
     if (name.startsWith("is")) {
       name = name.substring(2);
@@ -44,14 +56,32 @@ public final class PropertyNamer {
     return name;
   }
 
+  /**
+   * 判断是否是一个属性
+   *
+   * @param name
+   * @return
+   */
   public static boolean isProperty(String name) {
     return name.startsWith("get") || name.startsWith("set") || name.startsWith("is");
   }
 
+  /**
+   * 判断是否是get方法
+   *
+   * @param name
+   * @return
+   */
   public static boolean isGetter(String name) {
     return name.startsWith("get") || name.startsWith("is");
   }
 
+  /**
+   * 判断是否是set方法
+   *
+   * @param name
+   * @return
+   */
   public static boolean isSetter(String name) {
     return name.startsWith("set");
   }

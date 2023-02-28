@@ -61,6 +61,11 @@ public class DynamicContext {
     bindings.put(name, value);
   }
 
+  /**
+   * sql片段拼接，每段之间空格分隔
+   *
+   * @param sql
+   */
   public void appendSql(String sql) {
     sqlBuilder.append(sql);
     sqlBuilder.append(" ");

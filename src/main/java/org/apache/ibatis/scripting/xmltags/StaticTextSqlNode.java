@@ -27,7 +27,7 @@ public class StaticTextSqlNode implements SqlNode {
 
   @Override
   public boolean apply(DynamicContext context) {
-    context.appendSql(text);
+    context.appendSql(text);    // sql片段拼接
     return true;
   }
 

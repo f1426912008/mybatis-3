@@ -213,6 +213,13 @@ public class XNode {
     return getStringAttribute(name, null);
   }
 
+  /**
+   * 根据nam获取attributes中的属性值，获取不到返回参数二
+   *
+   * @param name  根据key从attributes中取值
+   * @param def   attributes中取不到，返回的默认值
+   * @return
+   */
   public String getStringAttribute(String name, String def) {
     String value = attributes.getProperty(name);
     if (value == null) {
@@ -301,6 +308,11 @@ public class XNode {
     return children;
   }
 
+  /**
+   * 将配置的 properties封装成 Java对象 Properties
+   *
+   * @return
+   */
   public Properties getChildrenAsProperties() {
     Properties properties = new Properties();
     for (XNode child : getChildren()) {

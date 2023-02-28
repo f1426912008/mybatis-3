@@ -39,6 +39,9 @@ import java.util.concurrent.locks.ReadWriteLock;
  * @author Clinton Begin
  */
 
+/**
+ * 用户自定义缓存类，需要实现此接口
+ */
 public interface Cache {
 
   /**

@@ -39,17 +39,17 @@ import org.apache.ibatis.session.Configuration;
 public class ResultMap {
   private Configuration configuration;
 
-  private String id;
-  private Class<?> type;
-  private List<ResultMapping> resultMappings;
-  private List<ResultMapping> idResultMappings;
-  private List<ResultMapping> constructorResultMappings;
-  private List<ResultMapping> propertyResultMappings;
-  private Set<String> mappedColumns;
-  private Set<String> mappedProperties;
-  private Discriminator discriminator;
-  private boolean hasNestedResultMaps;
-  private boolean hasNestedQueries;
+  private String id;    // 这里是标签的id名称，不可重复
+  private Class<?> type;    // 返回值类型
+  private List<ResultMapping> resultMappings;   // 结果映射关系集合
+  private List<ResultMapping> idResultMappings;   // 主键的集合，若没有主键，会将所有字段作为主键添加进来
+  private List<ResultMapping> constructorResultMappings;    // 构造方法入参的映射关系集合
+  private List<ResultMapping> propertyResultMappings;   // 属性结果映射集合
+  private Set<String> mappedColumns;    // 所有的列名
+  private Set<String> mappedProperties;   // 所有的javaBean属性名字
+  private Discriminator discriminator;    // 鉴别器
+  private boolean hasNestedResultMaps;    // 含有嵌套的结果映射
+  private boolean hasNestedQueries;   // 含有嵌套查询
   private Boolean autoMapping;
 
   private ResultMap() {
@@ -94,10 +94,12 @@ public class ResultMap {
       for (ResultMapping resultMapping : resultMap.resultMappings) {
         resultMap.hasNestedQueries = resultMap.hasNestedQueries || resultMapping.getNestedQueryId() != null;
         resultMap.hasNestedResultMaps = resultMap.hasNestedResultMaps || (resultMapping.getNestedResultMapId() != null && resultMapping.getResultSet() == null);
+
+        // 映射数据库的列
         final String column = resultMapping.getColumn();
         if (column != null) {
           resultMap.mappedColumns.add(column.toUpperCase(Locale.ENGLISH));
-        } else if (resultMapping.isCompositeResult()) {
+        } else if (resultMapping.isCompositeResult()) {   // 如果结果集包含有复杂型映射
           for (ResultMapping compositeResultMapping : resultMapping.getComposites()) {
             final String compositeColumn = compositeResultMapping.getColumn();
             if (compositeColumn != null) {
@@ -105,28 +107,31 @@ public class ResultMap {
             }
           }
         }
+
+        // 映射java字段
         final String property = resultMapping.getProperty();
         if(property != null) {
           resultMap.mappedProperties.add(property);
         }
-        if (resultMapping.getFlags().contains(ResultFlag.CONSTRUCTOR)) {
+        if (resultMapping.getFlags().contains(ResultFlag.CONSTRUCTOR)) {    // 如果是构造方法
           resultMap.constructorResultMappings.add(resultMapping);
           if (resultMapping.getProperty() != null) {
             constructorArgNames.add(resultMapping.getProperty());
           }
-        } else {
+        } else {    // 其他情况
           resultMap.propertyResultMappings.add(resultMapping);
         }
-        if (resultMapping.getFlags().contains(ResultFlag.ID)) {
+        if (resultMapping.getFlags().contains(ResultFlag.ID)) {   // 主键id
           resultMap.idResultMappings.add(resultMapping);
         }
       }
+      // 如果没有主键，全部列都视为主键
       if (resultMap.idResultMappings.isEmpty()) {
         resultMap.idResultMappings.addAll(resultMap.resultMappings);
       }
       if (!constructorArgNames.isEmpty()) {
-        final List<String> actualArgNames = argNamesOfMatchingConstructor(constructorArgNames);
-        if (actualArgNames == null) {
+        final List<String> actualArgNames = argNamesOfMatchingConstructor(constructorArgNames);   // 获取构造方法的入参名字
+        if (actualArgNames == null) {   // 若反射获取到的构造方法没有入参，抛异常
           throw new BuilderException("Error in result map '" + resultMap.id
               + "'. Failed to find a constructor in '"
               + resultMap.getType().getName() + "' by arg names " + constructorArgNames
@@ -142,6 +147,7 @@ public class ResultMap {
         });
       }
       // lock down collections
+      // 处理完毕，锁死已处理好的集合
       resultMap.resultMappings = Collections.unmodifiableList(resultMap.resultMappings);
       resultMap.idResultMappings = Collections.unmodifiableList(resultMap.idResultMappings);
       resultMap.constructorResultMappings = Collections.unmodifiableList(resultMap.constructorResultMappings);
@@ -150,12 +156,19 @@ public class ResultMap {
       return resultMap;
     }
 
+    /**
+     * （根据传入的构造方法，所有其入参名字的集合）
+     * 反射获取bean的所有构造方法，根据入参个数，匹配对应的构造方法
+     *
+     * @param constructorArgNames
+     * @return
+     */
     private List<String> argNamesOfMatchingConstructor(List<String> constructorArgNames) {
       Constructor<?>[] constructors = resultMap.type.getDeclaredConstructors();
       for (Constructor<?> constructor : constructors) {
         Class<?>[] paramTypes = constructor.getParameterTypes();
         if (constructorArgNames.size() == paramTypes.length) {
-          List<String> paramNames = getArgNames(constructor);
+          List<String> paramNames = getArgNames(constructor);   // 获取构造方法，所有入参名字的集合
           if (constructorArgNames.containsAll(paramNames)
               && argTypesMatch(constructorArgNames, paramTypes, paramNames)) {
             return paramNames;
@@ -165,6 +178,14 @@ public class ResultMap {
       return null;
     }
 
+    /**
+     * 判断构造方法入参的类型与XML映射类型是否一致
+     *
+     * @param constructorArgNames
+     * @param paramTypes
+     * @param paramNames
+     * @return
+     */
     private boolean argTypesMatch(final List<String> constructorArgNames,
         Class<?>[] paramTypes, List<String> paramNames) {
       for (int i = 0; i < constructorArgNames.size(); i++) {
@@ -184,6 +205,12 @@ public class ResultMap {
       return true;
     }
 
+    /**
+     * 根据构造方法，获取所有入参名字的集合
+     *
+     * @param constructor
+     * @return
+     */
     private List<String> getArgNames(Constructor<?> constructor) {
       List<String> paramNames = new ArrayList<String>();
       List<String> actualParamNames = null;
@@ -191,16 +218,20 @@ public class ResultMap {
       int paramCount = paramAnnotations.length;
       for (int paramIndex = 0; paramIndex < paramCount; paramIndex++) {
         String name = null;
+        // 如果构造方法入参加了这个注解，则将注解的value值赋予name属性
         for (Annotation annotation : paramAnnotations[paramIndex]) {
           if (annotation instanceof Param) {
             name = ((Param) annotation).value();
             break;
           }
         }
+        // 入参不含注解，且是使用原始参数名，且入参存在
         if (name == null && resultMap.configuration.isUseActualParamName() && Jdk.parameterExists) {
+          // 如果当前原始参数名为null(首次循环为null)，获取所有的入参名称的集合
           if (actualParamNames == null) {
             actualParamNames = ParamNameUtil.getParamNames(constructor);
           }
+          // 根据下标获取到对应的入参名称，赋值给name
           if (actualParamNames.size() > paramIndex) {
             name = actualParamNames.get(paramIndex);
           }

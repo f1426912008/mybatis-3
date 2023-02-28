@@ -60,6 +60,12 @@ public class SqlSessionFactoryBuilder {
     }
   }
 
+  /**
+   * 构建SqlSessionFactory工厂类，同时将完成所有的xml文件的解析。
+   *
+   * @param inputStream
+   * @return
+   */
   public SqlSessionFactory build(InputStream inputStream) {
     return build(inputStream, null, null);
   }
@@ -72,10 +78,20 @@ public class SqlSessionFactoryBuilder {
     return build(inputStream, null, properties);
   }
 
+  /**
+   * 最终执行的方法：
+   *
+   * 构建一个SqlSessionFactory工厂类，同时还将完成所有的xml文件的解析。
+   *
+   * @param inputStream
+   * @param environment
+   * @param properties
+   * @return
+   */
   public SqlSessionFactory build(InputStream inputStream, String environment, Properties properties) {
     try {
       XMLConfigBuilder parser = new XMLConfigBuilder(inputStream, environment, properties);
-      return build(parser.parse());
+      return build(parser.parse());   // parse方法，执行解析xml操作
     } catch (Exception e) {
       throw ExceptionFactory.wrapException("Error building SqlSession.", e);
     } finally {
@@ -87,7 +103,13 @@ public class SqlSessionFactoryBuilder {
       }
     }
   }
-    
+
+  /**
+   * 根据configuration对象，构建一个默认的SqlSessionFactory的子类实例
+   *
+   * @param config
+   * @return
+   */
   public SqlSessionFactory build(Configuration config) {
     return new DefaultSqlSessionFactory(config);
   }

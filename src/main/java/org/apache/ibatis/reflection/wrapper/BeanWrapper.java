@@ -50,13 +50,19 @@ public class BeanWrapper extends BaseWrapper {
     }
   }
 
+  /**
+   * 为java实体类的属性赋值
+   *
+   * @param prop
+   * @param value
+   */
   @Override
   public void set(PropertyTokenizer prop, Object value) {
     if (prop.getIndex() != null) {
       Object collection = resolveCollection(prop, object);
       setCollectionValue(prop, collection, value);
     } else {
-      setBeanProperty(prop, object, value);
+      setBeanProperty(prop, object, value);   // 给属性赋值
     }
   }
 
@@ -174,10 +180,10 @@ public class BeanWrapper extends BaseWrapper {
 
   private void setBeanProperty(PropertyTokenizer prop, Object object, Object value) {
     try {
-      Invoker method = metaClass.getSetInvoker(prop.getName());
+      Invoker method = metaClass.getSetInvoker(prop.getName());   // 获取对应属性的setter方法
       Object[] params = {value};
       try {
-        method.invoke(object, params);
+        method.invoke(object, params);    // 反射调用set方法赋值
       } catch (Throwable t) {
         throw ExceptionUtil.unwrapThrowable(t);
       }

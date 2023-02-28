@@ -18,6 +18,8 @@ package org.apache.ibatis.session;
 import java.sql.Connection;
 
 /**
+ * 事务等级
+ *
  * @author Clinton Begin
  */
 public enum TransactionIsolationLevel {

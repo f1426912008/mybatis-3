@@ -23,6 +23,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.ibatis.session.SqlSession;
 
 /**
+ * Mapper的反射工厂类，获取代理对象
+ *
  * @author Lasse Voss
  */
 public class MapperProxyFactory<T> {
@@ -42,11 +44,23 @@ public class MapperProxyFactory<T> {
     return methodCache;
   }
 
+  /**
+   * JDK动态代理
+   *
+   * @param mapperProxy
+   * @return
+   */
   @SuppressWarnings("unchecked")
   protected T newInstance(MapperProxy<T> mapperProxy) {
     return (T) Proxy.newProxyInstance(mapperInterface.getClassLoader(), new Class[] { mapperInterface }, mapperProxy);
   }
 
+  /**
+   * 生成反射对象（JDK动态代理）
+   *
+   * @param sqlSession
+   * @return
+   */
   public T newInstance(SqlSession sqlSession) {
     final MapperProxy<T> mapperProxy = new MapperProxy<T>(sqlSession, mapperInterface, methodCache);
     return newInstance(mapperProxy);

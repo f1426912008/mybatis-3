@@ -100,8 +100,8 @@ public class ParameterMapping {
     }
 
     public ParameterMapping build() {
-      resolveTypeHandler();
-      validate();
+      resolveTypeHandler();   // 解析类型处理器
+      validate();   // 校验部分参数
       return parameterMapping;
     }
 

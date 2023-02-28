@@ -27,6 +27,8 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.RowBounds;
 
 /**
+ * 主键自增生成策略
+ *
  * @author Clinton Begin
  * @author Jeff Butler
  */
@@ -81,6 +83,7 @@ public class SelectKeyGenerator implements KeyGenerator {
                 setValue(metaParam, keyProperties[0], values.get(0));
               }
             } else {
+              // 处理多个属性
               handleMultipleProperties(keyProperties, metaParam, metaResult);
             }
           }

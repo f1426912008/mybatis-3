@@ -43,8 +43,8 @@ public class PreparedStatementHandler extends BaseStatementHandler {
   @Override
   public int update(Statement statement) throws SQLException {
     PreparedStatement ps = (PreparedStatement) statement;
-    ps.execute();
-    int rows = ps.getUpdateCount();
+    ps.execute();   // SQL语句执行完毕
+    int rows = ps.getUpdateCount();   // 更新的条数
     Object parameterObject = boundSql.getParameterObject();
     KeyGenerator keyGenerator = mappedStatement.getKeyGenerator();
     keyGenerator.processAfter(executor, mappedStatement, ps, parameterObject);
@@ -57,11 +57,20 @@ public class PreparedStatementHandler extends BaseStatementHandler {
     ps.addBatch();
   }
 
+  /**
+   * sql真正执行的地方（ps.execute()）
+   *
+   * @param statement
+   * @param resultHandler
+   * @param <E>
+   * @return
+   * @throws SQLException
+   */
   @Override
   public <E> List<E> query(Statement statement, ResultHandler resultHandler) throws SQLException {
     PreparedStatement ps = (PreparedStatement) statement;
-    ps.execute();
-    return resultSetHandler.<E> handleResultSets(ps);
+    ps.execute();   // 真正的sql执行处
+    return resultSetHandler.<E> handleResultSets(ps);   // 处理结果集（如果有结果）
   }
 
   @Override

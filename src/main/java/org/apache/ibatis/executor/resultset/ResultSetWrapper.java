@@ -35,30 +35,30 @@ import org.apache.ibatis.type.TypeHandler;
 import org.apache.ibatis.type.TypeHandlerRegistry;
 import org.apache.ibatis.type.UnknownTypeHandler;
 
-/**
+/**结果集包装类
  * @author Iwao AVE!
  */
 public class ResultSetWrapper {
 
-  private final ResultSet resultSet;
-  private final TypeHandlerRegistry typeHandlerRegistry;
-  private final List<String> columnNames = new ArrayList<String>();
-  private final List<String> classNames = new ArrayList<String>();
-  private final List<JdbcType> jdbcTypes = new ArrayList<JdbcType>();
-  private final Map<String, Map<Class<?>, TypeHandler<?>>> typeHandlerMap = new HashMap<String, Map<Class<?>, TypeHandler<?>>>();
-  private final Map<String, List<String>> mappedColumnNamesMap = new HashMap<String, List<String>>();
+  private final ResultSet resultSet;    // java.sql原生的结果集
+  private final TypeHandlerRegistry typeHandlerRegistry;    // 类型处理器注册表
+  private final List<String> columnNames = new ArrayList<String>();   // 列名名称
+  private final List<String> classNames = new ArrayList<String>();    // 类名称
+  private final List<JdbcType> jdbcTypes = new ArrayList<JdbcType>();   // jdbc类型名称
+  private final Map<String, Map<Class<?>, TypeHandler<?>>> typeHandlerMap = new HashMap<String, Map<Class<?>, TypeHandler<?>>>();   // 类型处理器对应的Class
+  private final Map<String, List<String>> mappedColumnNamesMap = new HashMap<String, List<String>>();   // 映射列名map
   private final Map<String, List<String>> unMappedColumnNamesMap = new HashMap<String, List<String>>();
 
   public ResultSetWrapper(ResultSet rs, Configuration configuration) throws SQLException {
     super();
     this.typeHandlerRegistry = configuration.getTypeHandlerRegistry();
     this.resultSet = rs;
-    final ResultSetMetaData metaData = rs.getMetaData();
+    final ResultSetMetaData metaData = rs.getMetaData();    // 取出结果集元数据
     final int columnCount = metaData.getColumnCount();
     for (int i = 1; i <= columnCount; i++) {
       columnNames.add(configuration.isUseColumnLabel() ? metaData.getColumnLabel(i) : metaData.getColumnName(i));
-      jdbcTypes.add(JdbcType.forCode(metaData.getColumnType(i)));
-      classNames.add(metaData.getColumnClassName(i));
+      jdbcTypes.add(JdbcType.forCode(metaData.getColumnType(i)));   // 添加列的jdbc类型
+      classNames.add(metaData.getColumnClassName(i));   // MysqlType中存储了mysql数据类型对应的java类型
     }
   }
 

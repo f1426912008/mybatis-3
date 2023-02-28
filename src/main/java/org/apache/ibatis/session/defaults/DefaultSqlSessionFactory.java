@@ -44,6 +44,7 @@ public class DefaultSqlSessionFactory implements SqlSessionFactory {
 
   @Override
   public SqlSession openSession() {
+    // 默认的执行器：ExecutorType.SIMPLE
     return openSessionFromDataSource(configuration.getDefaultExecutorType(), null, false);
   }
 
@@ -87,15 +88,28 @@ public class DefaultSqlSessionFactory implements SqlSessionFactory {
     return configuration;
   }
 
+  /**
+   * 从数据源获取SqlSession
+   *
+   * @param execType
+   * @param level
+   * @param autoCommit
+   * @return
+   */
   private SqlSession openSessionFromDataSource(ExecutorType execType, TransactionIsolationLevel level, boolean autoCommit) {
     Transaction tx = null;
     try {
       final Environment environment = configuration.getEnvironment();
+      // 获取事务工厂类
       final TransactionFactory transactionFactory = getTransactionFactoryFromEnvironment(environment);
+      // 获取ManagedTransaction的对象
       tx = transactionFactory.newTransaction(environment.getDataSource(), level, autoCommit);
+      // 获取SQL的执行器
       final Executor executor = configuration.newExecutor(tx, execType);
+      // 创建默认的SqlSession对象返回
       return new DefaultSqlSession(configuration, executor, autoCommit);
     } catch (Exception e) {
+      // 遇到异常：如果开启了事务，则需要关闭事务
       closeTransaction(tx); // may have fetched a connection so lets call close()
       throw ExceptionFactory.wrapException("Error opening session.  Cause: " + e, e);
     } finally {
@@ -125,13 +139,27 @@ public class DefaultSqlSessionFactory implements SqlSessionFactory {
     }
   }
 
+  /**
+   * 获取事务工厂类：
+   *    如果environment中没有指定事务工厂，则创建一个 ManagedTransactionFactory 返回
+   *    否则返回environment中配置的事务工厂类
+   *
+   * @param environment
+   * @return
+   */
   private TransactionFactory getTransactionFactoryFromEnvironment(Environment environment) {
+    // 如果environment中存在直接返回，不存在就新创建一个
     if (environment == null || environment.getTransactionFactory() == null) {
       return new ManagedTransactionFactory();
     }
     return environment.getTransactionFactory();
   }
 
+  /**
+   * 关闭事务，如果不为null的话
+   *
+   * @param tx
+   */
   private void closeTransaction(Transaction tx) {
     if (tx != null) {
       try {

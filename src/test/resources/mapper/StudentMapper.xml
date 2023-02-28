@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.it.mapper.StudentMapper">
+
+    <resultMap id="BaseResultMap" type="com.it.bean.Student">
+        <id property="id" column="id" jdbcType="VARCHAR"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="gender" column="gender" jdbcType="VARCHAR"/>
+        <result property="major" column="major" jdbcType="VARCHAR"/>
+        <result property="grade" column="grade" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,name,gender,
+        major,grade
+    </sql>
+
+    <insert id="insertBatch">
+        insert into student(id, name, gender, major, grade)
+        VALUES
+        <foreach collection="list" index="index" item="item" separator=", ">
+            <bind name="index" value="'name: ' + item.name"/>
+            (uuid(), #{index}, #{item.gender}, #{item.major}, #{item.grade})
+        </foreach>
+    </insert>
+
+    <select id="selectById" resultType="com.it.bean.Student">
+        select
+        <include refid="Base_Column_List"/>
+        from student
+        <where>
+            <if test="id != null and id != ''">
+                and id = #{id}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectAll" resultType="com.it.bean.Student">
+        select *
+        from student
+    </select>
+
+</mapper>

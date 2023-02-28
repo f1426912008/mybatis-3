@@ -47,6 +47,16 @@ public final class OgnlCache {
     }
   }
 
+  /**
+   * 解析表达式，并进行缓存。
+   * 例：
+   *   解析前：id != null and id != ''
+   *   解析后：(id != null) && (id != "")
+   *
+   * @param expression
+   * @return
+   * @throws OgnlException
+   */
   private static Object parseExpression(String expression) throws OgnlException {
     Object node = expressionCache.get(expression);
     if (node == null) {

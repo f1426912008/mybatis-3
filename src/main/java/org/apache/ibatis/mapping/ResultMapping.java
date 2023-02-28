@@ -40,8 +40,8 @@ public class ResultMapping {
   private String nestedQueryId;
   private Set<String> notNullColumns;
   private String columnPrefix;
-  private List<ResultFlag> flags;
-  private List<ResultMapping> composites;
+  private List<ResultFlag> flags;   // 主键/构造方法
+  private List<ResultMapping> composites;   // 复合类型结果集
   private String resultSet;
   private String foreignColumn;
   private boolean lazy;
@@ -131,13 +131,19 @@ public class ResultMapping {
       resultMapping.lazy = lazy;
       return this;
     }
-    
+
+    /**
+     * 构建一个ResultMapping
+     *
+     * @return
+     */
     public ResultMapping build() {
       // lock down collections
+      // 锁定集合，集合为不可编辑的状态（unmodifiableList）
       resultMapping.flags = Collections.unmodifiableList(resultMapping.flags);
       resultMapping.composites = Collections.unmodifiableList(resultMapping.composites);
-      resolveTypeHandler();
-      validate();
+      resolveTypeHandler();   // 给当前ResultMapping类的类型处理器赋值
+      validate();   // 验证一些必要参数，如果不满足则抛出异常
       return resultMapping;
     }
 
@@ -168,7 +174,10 @@ public class ResultMapping {
         }
       }
     }
-    
+
+    /**
+     * 根据配置类，获取当前的类型对应的类型处理器
+     */
     private void resolveTypeHandler() {
       if (resultMapping.typeHandler == null && resultMapping.javaType != null) {
         Configuration configuration = resultMapping.configuration;

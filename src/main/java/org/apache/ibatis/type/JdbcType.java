@@ -68,7 +68,7 @@ public enum JdbcType {
   DATETIMEOFFSET(-155); // SQL Server 2008
 
   public final int TYPE_CODE;
-  private static Map<Integer,JdbcType> codeLookup = new HashMap<Integer,JdbcType>();
+  private static Map<Integer,JdbcType> codeLookup = new HashMap<Integer,JdbcType>();    // jdbc类型map
 
   static {
     for (JdbcType type : JdbcType.values()) {

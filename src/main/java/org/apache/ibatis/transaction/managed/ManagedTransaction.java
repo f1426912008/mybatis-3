@@ -38,10 +38,10 @@ public class ManagedTransaction implements Transaction {
 
   private static final Log log = LogFactory.getLog(ManagedTransaction.class);
 
-  private DataSource dataSource;
-  private TransactionIsolationLevel level;
-  private Connection connection;
-  private final boolean closeConnection;
+  private DataSource dataSource;    // 数据源
+  private TransactionIsolationLevel level;    // 事务等级
+  private Connection connection;    // 数据库连接对象
+  private final boolean closeConnection;    // 关闭连接，是否自动提交事务
 
   public ManagedTransaction(Connection connection, boolean closeConnection) {
     this.connection = connection;
@@ -56,8 +56,9 @@ public class ManagedTransaction implements Transaction {
 
   @Override
   public Connection getConnection() throws SQLException {
+    // 如果连接不为空，直接返回，否则获取新的连接对象
     if (this.connection == null) {
-      openConnection();
+      openConnection();   // 打开连接，获取到数据库连接对象
     }
     return this.connection;
   }
@@ -72,6 +73,11 @@ public class ManagedTransaction implements Transaction {
     // Does nothing
   }
 
+  /**
+   * 关闭连接（事务提交）
+   *
+   * @throws SQLException
+   */
   @Override
   public void close() throws SQLException {
     if (this.closeConnection && this.connection != null) {
@@ -82,12 +88,19 @@ public class ManagedTransaction implements Transaction {
     }
   }
 
+  /**
+   * 打开连接
+   *
+   * @throws SQLException
+   */
   protected void openConnection() throws SQLException {
     if (log.isDebugEnabled()) {
       log.debug("Opening JDBC Connection");
     }
+    // 数据源中获取连接对象
     this.connection = this.dataSource.getConnection();
     if (this.level != null) {
+      // 设置事务等级
       this.connection.setTransactionIsolation(this.level.getLevel());
     }
   }

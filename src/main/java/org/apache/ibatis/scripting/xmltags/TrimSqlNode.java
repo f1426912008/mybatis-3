@@ -29,11 +29,11 @@ import org.apache.ibatis.session.Configuration;
  */
 public class TrimSqlNode implements SqlNode {
 
-  private final SqlNode contents;
-  private final String prefix;
-  private final String suffix;
-  private final List<String> prefixesToOverride;
-  private final List<String> suffixesToOverride;
+  private final SqlNode contents;   // sql片段
+  private final String prefix;    // 前缀
+  private final String suffix;    // 后缀
+  private final List<String> prefixesToOverride;    // 需要重写的前缀，自动处理sql中多余的and、or等关键字
+  private final List<String> suffixesToOverride;    // 需要重写的后缀，自动处理sql中多余的and、or等关键字
   private final Configuration configuration;
 
   public TrimSqlNode(Configuration configuration, SqlNode contents, String prefix, String prefixesToOverride, String suffix, String suffixesToOverride) {
@@ -53,6 +53,7 @@ public class TrimSqlNode implements SqlNode {
   public boolean apply(DynamicContext context) {
     FilteredDynamicContext filteredDynamicContext = new FilteredDynamicContext(context);
     boolean result = contents.apply(filteredDynamicContext);
+    // 应用全部。将sql片段处理前缀、后缀，删除多余的前后缀，并拼接完整sql语句
     filteredDynamicContext.applyAll();
     return result;
   }
@@ -83,6 +84,9 @@ public class TrimSqlNode implements SqlNode {
       this.sqlBuffer = new StringBuilder();
     }
 
+    /**
+     * 应用全部。将sql片段处理前缀、后缀，删除多余的前后缀，并拼接完整sql语句
+     */
     public void applyAll() {
       sqlBuffer = new StringBuilder(sqlBuffer.toString().trim());
       String trimmedUppercaseSql = sqlBuffer.toString().toUpperCase(Locale.ENGLISH);
@@ -90,7 +94,7 @@ public class TrimSqlNode implements SqlNode {
         applyPrefix(sqlBuffer, trimmedUppercaseSql);
         applySuffix(sqlBuffer, trimmedUppercaseSql);
       }
-      delegate.appendSql(sqlBuffer.toString());
+      delegate.appendSql(sqlBuffer.toString());   // 拼接sql
     }
 
     @Override
@@ -124,7 +128,7 @@ public class TrimSqlNode implements SqlNode {
         if (prefixesToOverride != null) {
           for (String toRemove : prefixesToOverride) {
             if (trimmedUppercaseSql.startsWith(toRemove)) {
-              sql.delete(0, toRemove.trim().length());
+              sql.delete(0, toRemove.trim().length());    // 如果当前的sql片段以指定前缀开头，则删除掉（自动处理sql关键字and/or/where）
               break;
             }
           }

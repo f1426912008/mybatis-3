@@ -19,6 +19,8 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 /**
+ * 参数处理器
+ *
  * A parameter handler sets the parameters of the {@code PreparedStatement}
  *
  * @author Clinton Begin
@@ -27,6 +29,10 @@ public interface ParameterHandler {
 
   Object getParameterObject();
 
+  /**
+   * 设置参数规则的时候调用
+   * 当StatementHandler使用prepare()方法后，接下来就是使用它来设置参数
+   */
   void setParameters(PreparedStatement ps)
       throws SQLException;
 

@@ -20,12 +20,14 @@ import javax.sql.DataSource;
 import org.apache.ibatis.transaction.TransactionFactory;
 
 /**
+ * 数据源环境的配置类
+ *
  * @author Clinton Begin
  */
 public final class Environment {
-  private final String id;
-  private final TransactionFactory transactionFactory;
-  private final DataSource dataSource;
+  private final String id;    // environment配置的名称id（可配置多个environment）
+  private final TransactionFactory transactionFactory;    // 事务工厂
+  private final DataSource dataSource;    // 数据源
 
   public Environment(String id, TransactionFactory transactionFactory, DataSource dataSource) {
     if (id == null) {
