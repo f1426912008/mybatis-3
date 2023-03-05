@@ -12,6 +12,7 @@
     <property name="datasource_password" value="123asd"/>
   </properties>
 
+
   <settings>
   <!--  <setting name="cache" value="true"/>-->
     <setting name="logImpl" value="STDOUT_LOGGING" />
@@ -30,6 +31,13 @@
     <!--指定到包-->
     <package name="com.it.bean"/>
   </typeAliases>
+
+  <typeHandlers>
+    <!--扫描指定包里的类型处理器-->
+    <package name="com.it.typeHandler"/>
+    <!--配置单独的类型处理器，如果使用了注解声明javaType，将覆盖此配置，都可以使用别名表示-->
+    <!--<typeHandler handler="com.it.typeHandler.MyTypeHandler" javaType="Address" jdbcType="VARCHAR"/>-->
+  </typeHandlers>
 
   <!--插件配置、拦截器-->
   <plugins>
@@ -73,13 +81,12 @@
   <!--映射的XMl文件，sql语句-->
   <mappers>
     <!--按包名扫描，仅扫描.class文件，使用`.`进行分隔-->
-    <!--
-    <package name="mapper"/>
-    -->
+    <!--<package name="mapper"/>-->
 
     <!--扫描指定的文件-->
     <mapper resource="mapper/StudentMapper.xml"/>
     <mapper resource="mapper/UserMapper.xml"/>
+    <mapper resource="mapper/SysUserinfoMapper.xml"/>
   </mappers>
 
 </configuration>

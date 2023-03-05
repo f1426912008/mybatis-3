@@ -72,7 +72,7 @@ public abstract class BaseTypeHandler<T> extends TypeReference<T> implements Typ
   }
 
   /**
-   * 对应的类型处理器去获取结果集
+   * 对应的类型处理器去获取结果
    *
    * @param rs
    * @param columnName

@@ -415,7 +415,7 @@ public final class TypeHandlerRegistry {
       for (JdbcType handledJdbcType : mappedJdbcTypes.value()) {    // value为数组类型，可接收多个JDBC类型的值
         register(javaType, handledJdbcType, typeHandler);
       }
-      if (mappedJdbcTypes.includeNullJdbcType()) {    // includeNullJdbcType 的默认为值false
+      if (mappedJdbcTypes.includeNullJdbcType()) {    // Jdbc类型是否可为空，默认为值false
         register(javaType, null, typeHandler);
       }
     } else {
