@@ -80,8 +80,8 @@
 
   <!--映射的XMl文件，sql语句-->
   <mappers>
-    <!--按包名扫描，仅扫描.class文件，使用`.`进行分隔-->
-    <!--<package name="mapper"/>-->
+    <!--按包名扫描（需要xml与mapper接口的包名保持一致），使用 `.` 或 `/` 都可以进行分隔-->
+    <!--<package name="com.it.mapper"/>-->
 
     <!--扫描指定的文件-->
     <mapper resource="mapper/StudentMapper.xml"/>

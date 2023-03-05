@@ -87,7 +87,7 @@ public class MapperRegistry {
         // 在解析器运行之前添加类型很重要，否则映射器解析器可能会自动尝试绑定。
         // 如果类型已知，则不会尝试。
         MapperAnnotationBuilder parser = new MapperAnnotationBuilder(config, type);
-        parser.parse();
+        parser.parse();   // 解析mapper.xml文件
         loadCompleted = true;
       } finally {
         if (!loadCompleted) {
@@ -114,7 +114,7 @@ public class MapperRegistry {
     resolverUtil.find(new ResolverUtil.IsA(superType), packageName);    // 根据包名，获取包内所有的.class，并加入到matches集合中
     Set<Class<? extends Class<?>>> mapperSet = resolverUtil.getClasses();   // 获取已匹配的matches集合
     for (Class<?> mapperClass : mapperSet) {
-      addMapper(mapperClass);   // 添加到knownMappers集合中
+      addMapper(mapperClass);   // 添加到knownMappers集合中，解析mapper.xml文件
     }
   }
 

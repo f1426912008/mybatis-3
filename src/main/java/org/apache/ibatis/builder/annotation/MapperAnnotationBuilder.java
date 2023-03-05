@@ -167,6 +167,11 @@ public class MapperAnnotationBuilder {
      * 该标志设置在
      * @see XMLMapperBuilder#bindMapperForNamespace
      */
+    /**
+     * mybatis在扫描过指定的xml后，还会去找对应mapper包下扫描查找xml，
+     * 如果找到了xml，就会再次进行加载，这就导致可能会加载两次xml文件，
+     * 所以使用进行如下的判断，检查是否加载过
+     */
     if (!configuration.isResourceLoaded("namespace:" + type.getName())) {
       String xmlResource = type.getName().replace('.', '/') + ".xml";
       InputStream inputStream = null;
@@ -177,7 +182,7 @@ public class MapperAnnotationBuilder {
       }
       if (inputStream != null) {
         XMLMapperBuilder xmlParser = new XMLMapperBuilder(inputStream, assistant.getConfiguration(), xmlResource, configuration.getSqlFragments(), type.getName());
-        xmlParser.parse();
+        xmlParser.parse();    // 解析 mapper.xml文件
       }
     }
   }
