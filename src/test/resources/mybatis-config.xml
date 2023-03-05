@@ -34,8 +34,9 @@
   <!--插件配置、拦截器-->
   <plugins>
     <plugin interceptor="com.it.interceptor.MyInterceptor">
-      <property name="pageNum" value="1"/>
-      <property name="pageSize" value="5"/>
+      <property name="pageNum" value="${page_interceptor_pageNum}"/>
+      <property name="pageSize" value="${page_interceptor_pageSize}"/>
+      <property name="isEnabled" value="${page_interceptor_enabled}"/>
     </plugin>
     <plugin interceptor="com.github.pagehelper.PageInterceptor">
       <!-- 指定数据库类型，PageHelper插件4.0.0以后的版本支持自动识别使用的数据库，可以不用配置 -->

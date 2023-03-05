@@ -64,7 +64,10 @@ public class MyInterceptor implements Interceptor {
 
         if (target instanceof Executor) {
             System.out.println("SimpleExecutor");
-            return appendLimit((Executor) target, args);
+            String enabled = Optional.ofNullable(properties.getProperty("isEnabled")).orElse("false");
+            if (Boolean.parseBoolean(enabled)) {
+                return appendLimit((Executor) target, args);
+            }
         } else if (target instanceof DefaultParameterHandler) {
             System.out.println("DefaultParameterHandler");
         } else if (target instanceof DefaultResultSetHandler) {
