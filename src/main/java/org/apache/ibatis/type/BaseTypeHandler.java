@@ -37,6 +37,15 @@ public abstract class BaseTypeHandler<T> extends TypeReference<T> implements Typ
     this.configuration = c;
   }
 
+  /**
+   * 设置Statement语句的参数
+   *
+   * @param ps
+   * @param i
+   * @param parameter
+   * @param jdbcType
+   * @throws SQLException
+   */
   @Override
   public void setParameter(PreparedStatement ps, int i, T parameter, JdbcType jdbcType) throws SQLException {
     if (parameter == null) {
@@ -44,7 +53,7 @@ public abstract class BaseTypeHandler<T> extends TypeReference<T> implements Typ
         throw new TypeException("JDBC requires that the JdbcType must be specified for all nullable parameters.");
       }
       try {
-        ps.setNull(i, jdbcType.TYPE_CODE);
+        ps.setNull(i, jdbcType.TYPE_CODE);    // 入参为空
       } catch (SQLException e) {
         throw new TypeException("Error setting null for parameter #" + i + " with JdbcType " + jdbcType + " . " +
                 "Try setting a different JdbcType for this parameter or a different jdbcTypeForNull configuration property. " +
@@ -52,6 +61,7 @@ public abstract class BaseTypeHandler<T> extends TypeReference<T> implements Typ
       }
     } else {
       try {
+        // 对应的类型处理器子类，执行赋值操作
         setNonNullParameter(ps, i, parameter, jdbcType);    // 给sql语句set参数
       } catch (Exception e) {
         throw new TypeException("Error setting non null for parameter #" + i + " with JdbcType " + jdbcType + " . " +
@@ -61,10 +71,19 @@ public abstract class BaseTypeHandler<T> extends TypeReference<T> implements Typ
     }
   }
 
+  /**
+   * 对应的类型处理器去获取结果集
+   *
+   * @param rs
+   * @param columnName
+   * @return
+   * @throws SQLException
+   */
   @Override
   public T getResult(ResultSet rs, String columnName) throws SQLException {
     T result;
     try {
+      // 对应的类型处理器去执行
       result = getNullableResult(rs, columnName);
     } catch (Exception e) {
       throw new ResultMapException("Error attempting to get column '" + columnName + "' from result set.  Cause: " + e, e);

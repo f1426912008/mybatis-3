@@ -35,11 +35,11 @@ public class ResultMapping {
   private String column;
   private Class<?> javaType;
   private JdbcType jdbcType;
-  private TypeHandler<?> typeHandler;
-  private String nestedResultMapId;
-  private String nestedQueryId;
+  private TypeHandler<?> typeHandler;   // 类型处理器
+  private String nestedResultMapId;   // 嵌套结果集Id
+  private String nestedQueryId;   // 嵌套查询Id
   private Set<String> notNullColumns;
-  private String columnPrefix;
+  private String columnPrefix;    // 列名前缀
   private List<ResultFlag> flags;   // 主键/构造方法
   private List<ResultMapping> composites;   // 复合类型结果集
   private String resultSet;

@@ -82,12 +82,12 @@ public class DefaultResultSetHandler implements ResultSetHandler {
   private final ObjectFactory objectFactory;
   private final ReflectorFactory reflectorFactory;
 
-  // nested resultmaps
+  // nested resultmaps  嵌套结果映射
   private final Map<CacheKey, Object> nestedResultObjects = new HashMap<CacheKey, Object>();
   private final Map<String, Object> ancestorObjects = new HashMap<String, Object>();
-  private Object previousRowValue;
+  private Object previousRowValue;    // 前一行数据
 
-  // multiple resultsets
+  // multiple resultsets  多个结果集
   private final Map<String, ResultMapping> nextResultMaps = new HashMap<String, ResultMapping>();
   private final Map<CacheKey, List<PendingRelation>> pendingRelations = new HashMap<CacheKey, List<PendingRelation>>();
 
@@ -95,6 +95,7 @@ public class DefaultResultSetHandler implements ResultSetHandler {
   private final Map<String, List<UnMappedColumnAutoMapping>> autoMappingsCache = new HashMap<String, List<UnMappedColumnAutoMapping>>();
 
   // temporary marking flag that indicate using constructor mapping (use field to reduce memory usage)
+  // 指示使用构造函数映射的临时标记标志 (使用字段减少内存使用)
   private boolean useConstructorMappings;
 
   private final PrimitiveTypes primitiveTypes;
@@ -194,8 +195,8 @@ public class DefaultResultSetHandler implements ResultSetHandler {
     while (rsw != null && resultMapCount > resultSetCount) {
       ResultMap resultMap = resultMaps.get(resultSetCount);   // 获取到用户配置的ResultMap标签的映射关系
       handleResultSet(rsw, resultMap, multipleResults, null);   // 处理结果集（结果集、映射关系、处理结果的list）
-      rsw = getNextResultSet(stmt);
-      cleanUpAfterHandlingResultSet();
+      rsw = getNextResultSet(stmt);   // 获取下一个结果集对象
+      cleanUpAfterHandlingResultSet();    // 处理结果集后清理
       resultSetCount++;
     }
 
@@ -252,6 +253,13 @@ public class DefaultResultSetHandler implements ResultSetHandler {
     return rs != null ? new ResultSetWrapper(rs, configuration) : null;   // 如果第一个结果集不为空，初始化一个结果集包装器
   }
 
+  /**
+   * 获取到下一个结果集
+   *
+   * @param stmt
+   * @return
+   * @throws SQLException
+   */
   private ResultSetWrapper getNextResultSet(Statement stmt) throws SQLException {
     // Making this method tolerant of bad JDBC drivers
     try {
@@ -293,6 +301,15 @@ public class DefaultResultSetHandler implements ResultSetHandler {
     }
   }
 
+  /**
+   * 处理结果集，将结果处理后，添加到 multipleResults集合中
+   *
+   * @param rsw
+   * @param resultMap
+   * @param multipleResults
+   * @param parentMapping
+   * @throws SQLException
+   */
   private void handleResultSet(ResultSetWrapper rsw, ResultMap resultMap, List<Object> multipleResults, ResultMapping parentMapping) throws SQLException {
     try {
       if (parentMapping != null) {
@@ -318,19 +335,24 @@ public class DefaultResultSetHandler implements ResultSetHandler {
   }
 
   //
-  // HANDLE ROWS FOR SIMPLE RESULTMAP
+  // HANDLE ROWS FOR SIMPLE RESULTMAP   处理简单resultMap的行
   //
 
   public void handleRowValues(ResultSetWrapper rsw, ResultMap resultMap, ResultHandler<?> resultHandler, RowBounds rowBounds, ResultMapping parentMapping) throws SQLException {
     if (resultMap.hasNestedResultMaps()) {
-      ensureNoRowBounds();
-      checkResultHandler();
-      handleRowValuesForNestedResultMap(rsw, resultMap, resultHandler, rowBounds, parentMapping);   // 处理嵌套结果映射的行值
+      ensureNoRowBounds();    // 确保没有RowBounds。
+      checkResultHandler();   // 检查结果集，不满足将抛出异常。
+      handleRowValuesForNestedResultMap(rsw, resultMap, resultHandler, rowBounds, parentMapping);   // 处理嵌套结果映射
     } else {
-      handleRowValuesForSimpleResultMap(rsw, resultMap, resultHandler, rowBounds, parentMapping);   // 处理简单结果映射的行值
+      handleRowValuesForSimpleResultMap(rsw, resultMap, resultHandler, rowBounds, parentMapping);   // 处理简单结果映射
     }
   }
 
+  /**
+   * 确保没有RowBounds。
+   * 具有嵌套结果映射的映射语句不能安全地受到RowBounds的约束。
+   * 使用safeRowBoundsEnabled = false设置绕过此检查。
+   */
   private void ensureNoRowBounds() {
     if (configuration.isSafeRowBoundsEnabled() && rowBounds != null && (rowBounds.getLimit() < RowBounds.NO_ROW_LIMIT || rowBounds.getOffset() > RowBounds.NO_ROW_OFFSET)) {
       throw new ExecutorException("Mapped Statements with nested result mappings cannot be safely constrained by RowBounds. "
@@ -338,6 +360,11 @@ public class DefaultResultSetHandler implements ResultSetHandler {
     }
   }
 
+  /**
+   * 检查结果集。
+   * 具有嵌套结果映射的映射语句不能安全地与自定义ResultHandler一起使用。
+   * 使用safeResultHandlerEnabled = false设置来绕过此检查或确保您的语句返回有序的数据并在其上设置resultOrdered = true。
+   */
   protected void checkResultHandler() {
     if (resultHandler != null && configuration.isSafeResultHandlerEnabled() && !mappedStatement.isResultOrdered()) {
       throw new ExecutorException("Mapped Statements with nested result mappings cannot be safely used with a custom ResultHandler. "
@@ -351,6 +378,7 @@ public class DefaultResultSetHandler implements ResultSetHandler {
     DefaultResultContext<Object> resultContext = new DefaultResultContext<Object>();
     skipRows(rsw.getResultSet(), rowBounds);    // 跳过行（分页）
     while (shouldProcessMoreRows(resultContext, rowBounds) && rsw.getResultSet().next()) {
+      // 解析鉴别器 resultMap
       ResultMap discriminatedResultMap = resolveDiscriminatedResultMap(rsw.getResultSet(), resultMap, null);
       Object rowValue = getRowValue(rsw, discriminatedResultMap);
       storeObject(resultHandler, resultContext, rowValue, parentMapping, rsw.getResultSet());   // 存储对象
@@ -370,11 +398,26 @@ public class DefaultResultSetHandler implements ResultSetHandler {
     resultContext.nextResultObject(rowValue);
     ((ResultHandler<Object>) resultHandler).handleResult(resultContext);
   }
-  // 应该处理更多的行
+
+  /**
+   * 应该处理更多的行？
+   *
+   * @param context
+   * @param rowBounds
+   * @return
+   * @throws SQLException
+   */
   private boolean shouldProcessMoreRows(ResultContext<?> context, RowBounds rowBounds) throws SQLException {
     return !context.isStopped() && context.getResultCount() < rowBounds.getLimit();
   }
 
+  /**
+   * 跳过行（分页相关）
+   *
+   * @param rs
+   * @param rowBounds
+   * @throws SQLException
+   */
   private void skipRows(ResultSet rs, RowBounds rowBounds) throws SQLException {
     if (rs.getType() != ResultSet.TYPE_FORWARD_ONLY) {
       if (rowBounds.getOffset() != RowBounds.NO_ROW_OFFSET) {
@@ -387,10 +430,15 @@ public class DefaultResultSetHandler implements ResultSetHandler {
     }
   }
 
-  //
-  // GET VALUE FROM ROW FOR SIMPLE RESULT MAP
-  //
-  // 从行获取简单结果映射的值
+  /**
+   * 从行中获取简单结果映射的值
+   * GET VALUE FROM ROW FOR SIMPLE RESULT MAP
+   *
+   * @param rsw
+   * @param resultMap
+   * @return
+   * @throws SQLException
+   */
   private Object getRowValue(ResultSetWrapper rsw, ResultMap resultMap) throws SQLException {
     final ResultLoaderMap lazyLoader = new ResultLoaderMap();
     Object rowValue = createResultObject(rsw, resultMap, lazyLoader, null);   // 创建java的实体类对象（未赋值的对象）
@@ -550,8 +598,15 @@ public class DefaultResultSetHandler implements ResultSetHandler {
     return foundValues;
   }
 
-  // MULTIPLE RESULT SETS
-
+  /**
+   * 多个结果集。
+   * MULTIPLE RESULT SETS
+   *
+   * @param rs
+   * @param parentMapping
+   * @param rowValue
+   * @throws SQLException
+   */
   private void linkToParents(ResultSet rs, ResultMapping parentMapping, Object rowValue) throws SQLException {
     CacheKey parentKey = createKeyForMultipleResults(rs, parentMapping, parentMapping.getColumn(), parentMapping.getForeignColumn());
     List<PendingRelation> parents = pendingRelations.get(parentKey);
@@ -845,10 +900,20 @@ public class DefaultResultSetHandler implements ResultSetHandler {
   // DISCRIMINATOR
   //
 
+  /**
+   * 解析鉴别器 resultMap
+   *
+   * @param rs
+   * @param resultMap
+   * @param columnPrefix
+   * @return
+   * @throws SQLException
+   */
   public ResultMap resolveDiscriminatedResultMap(ResultSet rs, ResultMap resultMap, String columnPrefix) throws SQLException {
     Set<String> pastDiscriminators = new HashSet<String>();
-    Discriminator discriminator = resultMap.getDiscriminator();
+    Discriminator discriminator = resultMap.getDiscriminator();   // 鉴别器。存储结果集映射 ResultMapping
     while (discriminator != null) {
+      // 用鉴别器获取结果集映射，使用对应的类型处理器获取结果集中的值
       final Object value = getDiscriminatorValue(rs, discriminator, columnPrefix);
       final String discriminatedMapId = discriminator.getMapIdFor(String.valueOf(value));
       if (configuration.hasResultMap(discriminatedMapId)) {
@@ -865,12 +930,29 @@ public class DefaultResultSetHandler implements ResultSetHandler {
     return resultMap;
   }
 
+  /**
+   * 用鉴别器获取结果集映射，使用对应的类型处理器获取结果集中的值
+   *
+   * @param rs
+   * @param discriminator
+   * @param columnPrefix
+   * @return
+   * @throws SQLException
+   */
   private Object getDiscriminatorValue(ResultSet rs, Discriminator discriminator, String columnPrefix) throws SQLException {
     final ResultMapping resultMapping = discriminator.getResultMapping();
     final TypeHandler<?> typeHandler = resultMapping.getTypeHandler();
+    // 对应的类型处理器去获取结果集
     return typeHandler.getResult(rs, prependPrefix(resultMapping.getColumn(), columnPrefix));
   }
 
+  /**
+   * 拼接列名的前缀
+   *
+   * @param columnName
+   * @param prefix
+   * @return
+   */
   private String prependPrefix(String columnName, String prefix) {
     if (columnName == null || columnName.length() == 0 || prefix == null || prefix.length() == 0) {
       return columnName;
@@ -878,13 +960,20 @@ public class DefaultResultSetHandler implements ResultSetHandler {
     return prefix + columnName;
   }
 
-  //
-  // HANDLE NESTED RESULT MAPS
-  //
-
+  /**
+   * 处理嵌套结果映射。
+   * HANDLE NESTED RESULT MAPS
+   *
+   * @param rsw
+   * @param resultMap
+   * @param resultHandler
+   * @param rowBounds
+   * @param parentMapping
+   * @throws SQLException
+   */
   private void handleRowValuesForNestedResultMap(ResultSetWrapper rsw, ResultMap resultMap, ResultHandler<?> resultHandler, RowBounds rowBounds, ResultMapping parentMapping) throws SQLException {
     final DefaultResultContext<Object> resultContext = new DefaultResultContext<Object>();
-    skipRows(rsw.getResultSet(), rowBounds);
+    skipRows(rsw.getResultSet(), rowBounds);    // 进行分页，跳过行
     Object rowValue = previousRowValue;
     while (shouldProcessMoreRows(resultContext, rowBounds) && rsw.getResultSet().next()) {
       final ResultMap discriminatedResultMap = resolveDiscriminatedResultMap(rsw.getResultSet(), resultMap, null);
@@ -912,10 +1001,18 @@ public class DefaultResultSetHandler implements ResultSetHandler {
     }
   }
 
-  //
-  // GET VALUE FROM ROW FOR NESTED RESULT MAP
-  //
-
+  /**
+   * 从嵌套结果映射的行获取值。
+   * GET VALUE FROM ROW FOR NESTED RESULT MAP
+   *
+   * @param rsw
+   * @param resultMap
+   * @param combinedKey
+   * @param columnPrefix
+   * @param partialObject
+   * @return
+   * @throws SQLException
+   */
   private Object getRowValue(ResultSetWrapper rsw, ResultMap resultMap, CacheKey combinedKey, String columnPrefix, Object partialObject) throws SQLException {
     final String resultMapId = resultMap.getId();
     Object rowValue = partialObject;

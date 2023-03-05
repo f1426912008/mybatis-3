@@ -44,7 +44,7 @@ public class BoundSql {
   private final String sql;   // sql字符串
   private final List<ParameterMapping> parameterMappings;   // 参数映射
   private final Object parameterObject;
-  private final Map<String, Object> additionalParameters;
+  private final Map<String, Object> additionalParameters;   // 附加参数
   private final MetaObject metaParameters;
 
   public BoundSql(Configuration configuration, String sql, List<ParameterMapping> parameterMappings, Object parameterObject) {
@@ -67,15 +67,33 @@ public class BoundSql {
     return parameterObject;
   }
 
+  /**
+   * 是否有附加参数
+   *
+   * @param name
+   * @return
+   */
   public boolean hasAdditionalParameter(String name) {
     String paramName = new PropertyTokenizer(name).getName();
     return additionalParameters.containsKey(paramName);
   }
 
+  /**
+   * 设置附加参数的值
+   *
+   * @param name
+   * @param value
+   */
   public void setAdditionalParameter(String name, Object value) {
     metaParameters.setValue(name, value);
   }
 
+  /**
+   * 获取附加参数
+   *
+   * @param name
+   * @return
+   */
   public Object getAdditionalParameter(String name) {
     return metaParameters.getValue(name);
   }

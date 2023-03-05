@@ -47,7 +47,7 @@ public class ResultMap {
   private List<ResultMapping> propertyResultMappings;   // 属性结果映射集合
   private Set<String> mappedColumns;    // 所有的列名
   private Set<String> mappedProperties;   // 所有的javaBean属性名字
-  private Discriminator discriminator;    // 鉴别器
+  private Discriminator discriminator;    // 鉴别器，存储结果集映射 ResultMapping
   private boolean hasNestedResultMaps;    // 含有嵌套的结果映射
   private boolean hasNestedQueries;   // 含有嵌套查询
   private Boolean autoMapping;

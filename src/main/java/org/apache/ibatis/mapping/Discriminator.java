@@ -21,6 +21,8 @@ import java.util.Map;
 import org.apache.ibatis.session.Configuration;
 
 /**
+ * 鉴别器，存储结果集映射 ResultMapping
+ *
  * @author Clinton Begin
  */
 public class Discriminator {
