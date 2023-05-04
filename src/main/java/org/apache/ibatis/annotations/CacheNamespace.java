@@ -33,16 +33,23 @@ import org.apache.ibatis.cache.impl.PerpetualCache;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface CacheNamespace {
+
+  // 缓存的实现类
   Class<? extends org.apache.ibatis.cache.Cache> implementation() default PerpetualCache.class;
 
+  // 缓存装饰器
   Class<? extends org.apache.ibatis.cache.Cache> eviction() default LruCache.class;
 
+  // 刷新间隔时间
   long flushInterval() default 0;
 
+  // 缓存大小
   int size() default 1024;
 
+  // 缓存是否可读写
   boolean readWrite() default true;
-  
+
+  // 是否阻塞
   boolean blocking() default false;
 
   /**

@@ -86,7 +86,7 @@ public class MapperBuilderAssistant extends BaseBuilder {
   }
 
   /**
-   * 应用当前命名空间（格式：当前mapper的全限定名称 + .base）
+   * 应用当前命名空间（格式：当前mapper的全限定名称 + `.` + 入参 base）
    *
    * @param base
    * @param isReference
@@ -116,6 +116,12 @@ public class MapperBuilderAssistant extends BaseBuilder {
     return currentNamespace + "." + base;
   }
 
+  /**
+   * 获取到引用的缓存对象
+   *
+   * @param namespace
+   * @return
+   */
   public Cache useCacheRef(String namespace) {
     if (namespace == null) {
       throw new BuilderException("cache-ref element requires a namespace attribute.");
@@ -134,6 +140,18 @@ public class MapperBuilderAssistant extends BaseBuilder {
     }
   }
 
+  /**
+   * 使用新缓存类（单独配置的缓存），自定义缓存
+   *
+   * @param typeClass
+   * @param evictionClass
+   * @param flushInterval
+   * @param size
+   * @param readWrite
+   * @param blocking
+   * @param props
+   * @return
+   */
   public Cache useNewCache(Class<? extends Cache> typeClass,
       Class<? extends Cache> evictionClass,
       Long flushInterval,

@@ -23,7 +23,7 @@ import org.apache.ibatis.cache.Cache;
 import org.apache.ibatis.cache.CacheException;
 
 /**
- * 永久缓存
+ * 永久缓存，只有这一个实现类，其他全部都是装饰器类
  *
  * @author Clinton Begin
  */

@@ -122,12 +122,12 @@ public class Configuration {
   protected AutoMappingBehavior autoMappingBehavior = AutoMappingBehavior.PARTIAL;
   protected AutoMappingUnknownColumnBehavior autoMappingUnknownColumnBehavior = AutoMappingUnknownColumnBehavior.NONE;
 
-  protected Properties variables = new Properties();
+  protected Properties variables = new Properties();    // 变量
   protected ReflectorFactory reflectorFactory = new DefaultReflectorFactory();
   protected ObjectFactory objectFactory = new DefaultObjectFactory();
   protected ObjectWrapperFactory objectWrapperFactory = new DefaultObjectWrapperFactory();
 
-  protected boolean lazyLoadingEnabled = false;
+  protected boolean lazyLoadingEnabled = false;   // 懒加载开关
   protected ProxyFactory proxyFactory = new JavassistProxyFactory(); // #224 Using internal Javassist instead of OGNL
 
   protected String databaseId;
@@ -147,13 +147,17 @@ public class Configuration {
 
   // 存储SQL语句映射类的Map
   protected final Map<String, MappedStatement> mappedStatements = new StrictMap<MappedStatement>("Mapped Statements collection");
+  // 缓存的集合
   protected final Map<String, Cache> caches = new StrictMap<Cache>("Caches collection");
-  protected final Map<String, ResultMap> resultMaps = new StrictMap<ResultMap>("Result Maps collection");   // 所有的XML的resultMap集合
+  // 所有的XML的resultMap集合
+  protected final Map<String, ResultMap> resultMaps = new StrictMap<ResultMap>("Result Maps collection");
+  // 映射入参的集合(废弃)
   protected final Map<String, ParameterMap> parameterMaps = new StrictMap<ParameterMap>("Parameter Maps collection");
   // 需要进行主键自动生成的Map
   protected final Map<String, KeyGenerator> keyGenerators = new StrictMap<KeyGenerator>("Key Generators collection");
-
-  protected final Set<String> loadedResources = new HashSet<String>();    // 已经加载完毕的XML资源
+  // 已经加载完毕的XML资源
+  protected final Set<String> loadedResources = new HashSet<String>();
+  // sql语句片段
   protected final Map<String, XNode> sqlFragments = new StrictMap<XNode>("XML fragments parsed from previous mappers");
 
   protected final Collection<XMLStatementBuilder> incompleteStatements = new LinkedList<XMLStatementBuilder>();   // 不完整的SQL语句
@@ -166,7 +170,7 @@ public class Configuration {
    * references a cache bound to another namespace and the value is the
    * namespace which the actual cache is bound to.
    */
-  protected final Map<String, String> cacheRefMap = new HashMap<String, String>();
+  protected final Map<String, String> cacheRefMap = new HashMap<String, String>();    // 缓存引用的集合
 
   public Configuration(Environment environment) {
     this();

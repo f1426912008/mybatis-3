@@ -42,7 +42,7 @@ import org.apache.ibatis.reflection.SystemMetaObject;
 public class CacheBuilder {
   private final String id;    // 缓存名称的id
   private Class<? extends Cache> implementation;    // 实现了Cache接口的实现类Class
-  private final List<Class<? extends Cache>> decorators;
+  private final List<Class<? extends Cache>> decorators;    // 缓存装饰者类
   private Integer size;
   private Long clearInterval;
   private boolean readWrite;

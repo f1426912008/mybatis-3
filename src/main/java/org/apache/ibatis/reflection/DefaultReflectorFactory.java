@@ -18,6 +18,9 @@ package org.apache.ibatis.reflection;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+/**
+ * 默认的反射器工厂
+ */
 public class DefaultReflectorFactory implements ReflectorFactory {
   private boolean classCacheEnabled = true;
   // 存储的是Bean，及Bean的反射信息，如set/get方法，默认构造方法等

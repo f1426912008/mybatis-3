@@ -18,6 +18,8 @@ package org.apache.ibatis.builder.annotation;
 import java.lang.reflect.Method;
 
 /**
+ * 方法解析器
+ *
  * @author Eduardo Macarron
  */
 public class MethodResolver {
@@ -30,7 +32,7 @@ public class MethodResolver {
   }
 
   public void resolve() {
-    annotationBuilder.parseStatement(method);
+    annotationBuilder.parseStatement(method);   // 再次解析未完成的方法
   }
 
 }

@@ -121,36 +121,42 @@ public class MapperAnnotationBuilder {
     sqlProviderAnnotationTypes.add(DeleteProvider.class);
   }
 
+  /**
+   * 解析 mapper 中的内容，SQL、缓存、resultMap等。
+   */
   public void parse() {
     String resource = type.toString();
     if (!configuration.isResourceLoaded(resource)) {    // 判断当前接口是否已加载
       loadXmlResource();    // 加载mapper的XML资源
-      configuration.addLoadedResource(resource);
+      configuration.addLoadedResource(resource);    // 添加到已经加载完毕的XML资源集合中
       assistant.setCurrentNamespace(type.getName());
-      parseCache();
-      parseCacheRef();
+      parseCache();   // 解析类中注解配置的缓存类
+      parseCacheRef();    // 解析类中注解配置的引用的缓存类
       Method[] methods = type.getMethods();
       for (Method method : methods) {
         try {
           // issue #237
           if (!method.isBridge()) {
-            parseStatement(method);
+            parseStatement(method);   // 解析类中注解配置的SQL语句
           }
         } catch (IncompleteElementException e) {
           configuration.addIncompleteMethod(new MethodResolver(this, method));
         }
       }
     }
-    parsePendingMethods();
+    parsePendingMethods();    // 最后再次尝试解析待处理方法
   }
 
+  /**
+   * 解析待处理方法
+   */
   private void parsePendingMethods() {
     Collection<MethodResolver> incompleteMethods = configuration.getIncompleteMethods();
     synchronized (incompleteMethods) {
       Iterator<MethodResolver> iter = incompleteMethods.iterator();
       while (iter.hasNext()) {
         try {
-          iter.next().resolve();
+          iter.next().resolve();    // 再次解析未完成的方法
           iter.remove();
         } catch (IncompleteElementException e) {
           // This method is still missing a resource
@@ -159,6 +165,9 @@ public class MapperAnnotationBuilder {
     }
   }
 
+  /**
+   * 加载 Mapper的XML配置
+   */
   private void loadXmlResource() {
     // Spring may not know the real resource name so we check a flag
     // to prevent loading again a resource twice
@@ -187,16 +196,26 @@ public class MapperAnnotationBuilder {
     }
   }
 
+  /**
+   * 解析缓存，如果没有配置自己的缓存类，则使用 MyBatis 默认的缓存类 PerpetualCache
+   */
   private void parseCache() {
     CacheNamespace cacheDomain = type.getAnnotation(CacheNamespace.class);
     if (cacheDomain != null) {
       Integer size = cacheDomain.size() == 0 ? null : cacheDomain.size();
       Long flushInterval = cacheDomain.flushInterval() == 0 ? null : cacheDomain.flushInterval();
+      // 注解转换为对象
       Properties props = convertToProperties(cacheDomain.properties());
       assistant.useNewCache(cacheDomain.implementation(), cacheDomain.eviction(), flushInterval, size, cacheDomain.readWrite(), cacheDomain.blocking(), props);
     }
   }
 
+  /**
+   * 注解转换为对象
+   *
+   * @param properties
+   * @return
+   */
   private Properties convertToProperties(Property[] properties) {
     if (properties.length == 0) {
       return null;
@@ -209,6 +228,9 @@ public class MapperAnnotationBuilder {
     return props;
   }
 
+  /**
+   * 解析引用的缓存类
+   */
   private void parseCacheRef() {
     CacheNamespaceRef cacheDomainRef = type.getAnnotation(CacheNamespaceRef.class);
     if (cacheDomainRef != null) {
@@ -295,6 +317,10 @@ public class MapperAnnotationBuilder {
     return null;
   }
 
+  /**
+   * 解析 mapper.class 中的注解，sql及映射配置
+   * @param method
+   */
   void parseStatement(Method method) {
     Class<?> parameterTypeClass = getParameterType(method);
     LanguageDriver languageDriver = getLanguageDriver(method);
@@ -400,6 +426,12 @@ public class MapperAnnotationBuilder {
     return assistant.getLanguageDriver(langClass);
   }
 
+  /**
+   * 获取方法的入参类型
+   *
+   * @param method
+   * @return
+   */
   private Class<?> getParameterType(Method method) {
     Class<?> parameterType = null;
     Class<?>[] parameterTypes = method.getParameterTypes();

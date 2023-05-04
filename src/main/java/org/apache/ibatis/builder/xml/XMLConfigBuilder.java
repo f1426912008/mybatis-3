@@ -56,6 +56,7 @@ public class XMLConfigBuilder extends BaseBuilder {
   private boolean parsed;
   private final XPathParser parser;
   private String environment;
+  // 反射器工厂
   private final ReflectorFactory localReflectorFactory = new DefaultReflectorFactory();
 
   public XMLConfigBuilder(Reader reader) {

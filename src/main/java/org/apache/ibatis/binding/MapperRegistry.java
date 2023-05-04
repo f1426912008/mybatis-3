@@ -87,7 +87,7 @@ public class MapperRegistry {
         // 在解析器运行之前添加类型很重要，否则映射器解析器可能会自动尝试绑定。
         // 如果类型已知，则不会尝试。
         MapperAnnotationBuilder parser = new MapperAnnotationBuilder(config, type);
-        parser.parse();   // 解析mapper.xml文件
+        parser.parse();   // 解析mapper文件，XML和Mapper中的注解
         loadCompleted = true;
       } finally {
         if (!loadCompleted) {
