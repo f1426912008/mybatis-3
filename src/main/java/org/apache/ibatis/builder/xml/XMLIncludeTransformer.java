@@ -80,11 +80,12 @@ public class XMLIncludeTransformer {
     } else if (source.getNodeType() == Node.ELEMENT_NODE) {
       if (included && !variablesContext.isEmpty()) {
         // replace variables in attribute values
-        // 替换属性值中的变量
+        // 替换属性值中的变量(解析${}中的值)
         NamedNodeMap attributes = source.getAttributes();
         for (int i = 0; i < attributes.getLength(); i++) {
           Node attr = attributes.item(i);
-          attr.setNodeValue(PropertyParser.parse(attr.getNodeValue(), variablesContext));   // parse解析 ${} 表达式中的属性值
+          // PropertyParser.parse解析 ${} 表达式中的属性值
+          attr.setNodeValue(PropertyParser.parse(attr.getNodeValue(), variablesContext));
         }
       }
       NodeList children = source.getChildNodes();
@@ -93,7 +94,7 @@ public class XMLIncludeTransformer {
       }
     } else if (included && source.getNodeType() == Node.TEXT_NODE
         && !variablesContext.isEmpty()) {
-      // replace variables in text node
+      // replace variables in text node 替换文本节点中的变量(解析${}中的值)
       source.setNodeValue(PropertyParser.parse(source.getNodeValue(), variablesContext));
     }
   }

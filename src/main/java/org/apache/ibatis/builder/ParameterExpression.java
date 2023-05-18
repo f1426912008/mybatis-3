@@ -34,7 +34,7 @@ import java.util.HashMap;
 public class ParameterExpression extends HashMap<String, String> {
 
   private static final long serialVersionUID = -2417552199605158680L;
-
+  // 参数表达式，解析出表达式的值
   public ParameterExpression(String expression) {
     parse(expression);
   }
@@ -67,7 +67,7 @@ public class ParameterExpression extends HashMap<String, String> {
     if (left < expression.length()) {
       int right = skipUntil(expression, left, ",:");    // 跳过",:"直到
       put("property", trimmedStr(expression, left, right));     // 去除属性名称的前后空字符
-      jdbcTypeOpt(expression, right);
+      jdbcTypeOpt(expression, right);   // 解析出jdbc的类型，例如 #{id, jdbcType=varchar}
     }
   }
 
@@ -104,12 +104,12 @@ public class ParameterExpression extends HashMap<String, String> {
     }
     return expression.length();
   }
-
+  // 解析出jdbc的类型，例如 #{id, jdbcType=varchar}
   private void jdbcTypeOpt(String expression, int p) {
     p = skipWS(expression, p);
     if (p < expression.length()) {
       if (expression.charAt(p) == ':') {
-        jdbcType(expression, p + 1);
+        jdbcType(expression, p + 1);    // 解析出jdbc的类型，例如 #{id, jdbcType=varchar}
       } else if (expression.charAt(p) == ',') {
         option(expression, p + 1);
       } else {

@@ -86,13 +86,13 @@ public class SqlSourceBuilder extends BaseBuilder {
     }
 
     /**
-     * 构建参数映射
+     * 构建参数映射，解析入参对应的实体类字段，解析jdbc的类型
      *
      * @param content
      * @return
      */
     private ParameterMapping buildParameterMapping(String content) {
-      Map<String, String> propertiesMap = parseParameterMapping(content);
+      Map<String, String> propertiesMap = parseParameterMapping(content);   // 解析入参对应的实体类字段，解析jdbc的类型
       String property = propertiesMap.get("property");    // 取出属性的名称
       Class<?> propertyType;
       if (metaParameters.hasGetter(property)) { // issue #448 get type from additional params

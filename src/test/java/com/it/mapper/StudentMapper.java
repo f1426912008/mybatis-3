@@ -24,6 +24,7 @@ public interface StudentMapper {
 
     Integer insertBatch(@Param("list") List<Student> list);
 
+    List<Student> selectDefines(@Param("id") String id);
 }
 
 

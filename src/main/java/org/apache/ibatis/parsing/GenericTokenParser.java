@@ -75,7 +75,7 @@ public class GenericTokenParser {
           builder.append(src, start, src.length - start);
           offset = src.length;
         } else {
-          builder.append(handler.handleToken(expression.toString()));   // 将 #{} 替换为 ? ，
+          builder.append(handler.handleToken(expression.toString()));   // 将#{}替换为 ? ，${}替换为property中对应key的value
           offset = end + closeToken.length();
         }
       }

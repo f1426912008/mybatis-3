@@ -38,8 +38,20 @@
     </select>
 
     <select id="selectAll" resultType="com.it.bean.Student">
-        select *
+        select id, name, gender, major, grade
         from student
+    </select>
+
+    <sql id="whereId">
+        where ${p1} = #{id, jdbcType=VARCHAR}
+    </sql>
+
+    <select id="selectDefines" resultType="com.it.bean.Student">
+        select id, name, gender, major, grade
+        from student
+        <include refid="whereId">
+            <property name="p1" value="id"/>
+        </include>
     </select>
 
 </mapper>

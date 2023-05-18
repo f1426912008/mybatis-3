@@ -18,6 +18,7 @@ package org.apache.ibatis.parsing;
 import java.util.Properties;
 
 /**
+ * 解析 ${} 中的值，字符串替换
  * @author Clinton Begin
  * @author Kazuki Shimizu
  */
@@ -25,6 +26,7 @@ public class PropertyParser {
 
   private static final String KEY_PREFIX = "org.apache.ibatis.parsing.PropertyParser.";
   /**
+   * 指示是否在占位符上启用默认值的特殊属性键。
    * The special property key that indicate whether enable a default value on placeholder.
    * <p>
    *   The default value is {@code false} (indicate disable a default value on placeholder)
@@ -35,6 +37,7 @@ public class PropertyParser {
   public static final String KEY_ENABLE_DEFAULT_VALUE = KEY_PREFIX + "enable-default-value";
 
   /**
+   * 为占位符上的键和默认值指定分隔符的特殊属性键
    * The special property key that specify a separator for key and default value on placeholder.
    * <p>
    *   The default separator is {@code ":"}.
@@ -53,8 +56,8 @@ public class PropertyParser {
   /**
    * 解析 ${} 表达式中的属性值
    *
-   * @param string
-   * @param variables
+   * @param string 标签的id值
+   * @param variables 全局的prop属性
    * @return
    */
   public static String parse(String string, Properties variables) {
@@ -82,6 +85,7 @@ public class PropertyParser {
     public String handleToken(String content) {
       if (variables != null) {
         String key = content;
+        // 默认值为false
         if (enableDefaultValue) {
           final int separatorIndex = content.indexOf(defaultValueSeparator);
           String defaultValue = null;
@@ -93,6 +97,7 @@ public class PropertyParser {
             return variables.getProperty(key, defaultValue);
           }
         }
+        // 从property中取值替换变量
         if (variables.containsKey(key)) {
           return variables.getProperty(key);
         }

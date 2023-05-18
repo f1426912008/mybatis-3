@@ -65,4 +65,12 @@ public class Demo1 extends BaseDemo {
         students.forEach(System.out::println);
     }
 
+    @Test
+    public void test6() {
+        StudentMapper mapper = session.getMapper(StudentMapper.class);
+        String id = "28e2f369-a38a-11ed-a134-54ee75da5e7a";
+        List<Student> students = mapper.selectDefines(id);
+        students.forEach(System.out::println);
+    }
+
 }
