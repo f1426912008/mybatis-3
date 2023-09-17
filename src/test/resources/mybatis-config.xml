@@ -41,30 +41,30 @@
     </typeHandlers>
 
     <!--插件配置、拦截器-->
-    <plugins>
-        <plugin interceptor="com.it.interceptor.MyInterceptor">
-            <property name="pageNum" value="${page_interceptor_pageNum}"/>
-            <property name="pageSize" value="${page_interceptor_pageSize}"/>
-            <property name="isEnabled" value="${page_interceptor_enabled}"/>
-        </plugin>
-        <plugin interceptor="com.github.pagehelper.PageInterceptor">
-            <!-- 指定数据库类型，PageHelper插件4.0.0以后的版本支持自动识别使用的数据库，可以不用配置 -->
-            <!--<property name="dialect" value="mysql"/>-->
-            <!-- 设置为true时，会将RowBounds第一个参数offset当成pageNum页码使用 -->
-            <property name="offsetAsPageNum" value="true"/>
-            <!-- 设置为true时，使用RowBounds分页会进行count查询 -->
-            <property name="rowBoundsWithCount" value="true"/>
-            <!-- 设置为true时，如果pageSize=0或者RowBounds.limit = 0就会查询出全部的结果 -->
-            <property name="pageSizeZero" value="true"/>
-            <!-- 启用合理化时，如果pageNum<1会查询第一页，如果pageNum>pages会查询最后一页 -->
-            <!-- 禁用合理化时，如果pageNum<1或pageNum>pages会返回空数据 -->
-            <property name="reasonable" value="false"/>
-            <!-- 支持通过Mapper接口参数来传递分页参数 -->
-            <property name="supportMethodsArguments" value="false"/>
-            <!-- always总是返回PageInfo类型,check检查返回类型是否为PageInfo,none返回Page -->
-            <property name="returnPageInfo" value="none"/>
-        </plugin>
-    </plugins>
+    <!--<plugins>-->
+    <!--    <plugin interceptor="com.it.interceptor.MyInterceptor">-->
+    <!--        <property name="pageNum" value="${page_interceptor_pageNum}"/>-->
+    <!--        <property name="pageSize" value="${page_interceptor_pageSize}"/>-->
+    <!--        <property name="isEnabled" value="${page_interceptor_enabled}"/>-->
+    <!--    </plugin>-->
+    <!--    <plugin interceptor="com.github.pagehelper.PageInterceptor">-->
+    <!--        &lt;!&ndash; 指定数据库类型，PageHelper插件4.0.0以后的版本支持自动识别使用的数据库，可以不用配置 &ndash;&gt;-->
+    <!--        &lt;!&ndash;<property name="dialect" value="mysql"/>&ndash;&gt;-->
+    <!--        &lt;!&ndash; 设置为true时，会将RowBounds第一个参数offset当成pageNum页码使用 &ndash;&gt;-->
+    <!--        <property name="offsetAsPageNum" value="true"/>-->
+    <!--        &lt;!&ndash; 设置为true时，使用RowBounds分页会进行count查询 &ndash;&gt;-->
+    <!--        <property name="rowBoundsWithCount" value="true"/>-->
+    <!--        &lt;!&ndash; 设置为true时，如果pageSize=0或者RowBounds.limit = 0就会查询出全部的结果 &ndash;&gt;-->
+    <!--        <property name="pageSizeZero" value="true"/>-->
+    <!--        &lt;!&ndash; 启用合理化时，如果pageNum<1会查询第一页，如果pageNum>pages会查询最后一页 &ndash;&gt;-->
+    <!--        &lt;!&ndash; 禁用合理化时，如果pageNum<1或pageNum>pages会返回空数据 &ndash;&gt;-->
+    <!--        <property name="reasonable" value="false"/>-->
+    <!--        &lt;!&ndash; 支持通过Mapper接口参数来传递分页参数 &ndash;&gt;-->
+    <!--        <property name="supportMethodsArguments" value="false"/>-->
+    <!--        &lt;!&ndash; always总是返回PageInfo类型,check检查返回类型是否为PageInfo,none返回Page &ndash;&gt;-->
+    <!--        <property name="returnPageInfo" value="none"/>-->
+    <!--    </plugin>-->
+    <!--</plugins>-->
 
     <!--环境配置，数据源-->
     <environments default="development">

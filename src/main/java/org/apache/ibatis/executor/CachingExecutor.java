@@ -92,6 +92,7 @@ public class CachingExecutor implements Executor {
   @Override
   public <E> List<E> query(MappedStatement ms, Object parameterObject, RowBounds rowBounds, ResultHandler resultHandler, CacheKey key, BoundSql boundSql)
       throws SQLException {
+    // 二级缓存，每个Mapper都可以配置自己的缓存实现类
     Cache cache = ms.getCache();    // 获取缓存实现类，如果不为null，从缓存取出数据并返回，否则去数据库查询返回
     if (cache != null) {
       flushCacheIfRequired(ms);     // 如果配置了清除缓存的属性，清除缓存
